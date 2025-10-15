@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +19,7 @@ const registerSchema = z.object({
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -86,7 +86,8 @@ export default function RegisterPage() {
       } else {
         setError(result.error || 'Registration failed');
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Registration error:', err);
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -116,7 +117,7 @@ export default function RegisterPage() {
               animate={{ opacity: 1, y: 0 }}
               className="bg-green-500/20 border border-green-500 text-green-300 px-6 py-4 rounded-lg mb-6"
             >
-              ✅ Registration successful! We'll contact you soon with more details.
+              ✅ Registration successful! We&apos;ll contact you soon with more details.
             </motion.div>
           )}
 
@@ -226,7 +227,7 @@ export default function RegisterPage() {
               </label>
               <select id="event" {...register('event')} className="input-field">
                 <option value="">Choose a workshop</option>
-                {events.map((event: any) => (
+                {events.map((event: { _id: string; title: string; date: string }) => (
                   <option key={event._id} value={event.title}>
                     {event.title} - {new Date(event.date).toLocaleDateString()}
                   </option>
@@ -264,5 +265,20 @@ export default function RegisterPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-blue mx-auto"></div>
+          <p className="text-gray-400 mt-4">Loading...</p>
+        </div>
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 }

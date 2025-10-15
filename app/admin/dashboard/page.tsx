@@ -429,7 +429,7 @@ export default function AdminDashboard() {
                           </div>
                           <div>
                             <label className="block text-gray-400 mb-2">Status *</label>
-                            <select value={workshopForm.status} onChange={(e) => setWorkshopForm({ ...workshopForm, status: e.target.value as any })} className="input-field w-full">
+                            <select value={workshopForm.status} onChange={(e) => setWorkshopForm({ ...workshopForm, status: e.target.value as 'upcoming' | 'ongoing' | 'completed' | 'cancelled' })} className="input-field w-full">
                               <option value="upcoming">Upcoming</option>
                               <option value="ongoing">Ongoing</option>
                               <option value="completed">Completed</option>

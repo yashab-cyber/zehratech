@@ -48,7 +48,8 @@ export default function ContactPage() {
       } else {
         setError('Failed to send message. Please try again.');
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Contact form error:', err);
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -80,7 +81,7 @@ export default function ContactPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-green-500/20 border border-green-500 text-green-300 px-6 py-4 rounded-lg mb-6"
               >
-                ✅ Message sent successfully! We'll get back to you soon.
+                ✅ Message sent successfully! We&apos;ll get back to you soon.
               </motion.div>
             )}
 

@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { IEvent } from '@/models/Event';
 
 interface EventCardProps {
   event: {

@@ -298,7 +298,7 @@ export default function PortfolioPage() {
           viewport={{ once: true }}
           className="card text-center bg-gradient-to-r from-dark-800 via-dark-900 to-dark-800"
         >
-          <h2 className="text-3xl font-bold text-white mb-4">Let's Connect!</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">Let&apos;s Connect!</h2>
           <p className="text-gray-300 mb-8">
             Interested in collaborating or have questions about AI and Cybersecurity?
           </p>

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const classFilter = searchParams.get('class');
     const search = searchParams.get('search');
 
-    let query: any = {};
+    const query: Record<string, unknown> = {};
 
     if (eventFilter) query.event = eventFilter;
     if (classFilter) query.class = classFilter;

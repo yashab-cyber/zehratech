@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
       { message: 'Registration successful!', student },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('Registration error:', error);
     
-    if (error.code === 11000) {
+    if (error instanceof Error && 'code' in error && (error as { code: number }).code === 11000) {
       return NextResponse.json(
         { error: 'Email already registered' },
         { status: 400 }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: error.message || 'Registration failed' },
+      { error: error instanceof Error ? error.message : 'Registration failed' },
       { status: 500 }
     );
   }

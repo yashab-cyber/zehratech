@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Event from '@/models/Event';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await requireAuth();
     await connectDB();
@@ -30,10 +30,11 @@ export async function POST(request: NextRequest) {
     const event = await Event.create(data);
 
     return NextResponse.json({ event }, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create event';
     console.error('Error creating event:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to create event' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -53,10 +54,11 @@ export async function PUT(request: NextRequest) {
     const event = await Event.findByIdAndUpdate(id, data, { new: true });
 
     return NextResponse.json({ event }, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update event';
     console.error('Error updating event:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to update event' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
