@@ -5,6 +5,7 @@ import connectDB from '@/lib/mongodb';
 import Admin from '@/models/Admin';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true, // Trust the host in production (Render deployment)
   providers: [
     CredentialsProvider({
       name: 'Credentials',
