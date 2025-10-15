@@ -82,7 +82,7 @@ export default function Home() {
 
             {/* Floating Icons */}
             <motion.div
-              className="flex justify-center gap-12 pt-16"
+              className="flex flex-wrap justify-center gap-6 sm:gap-8 md:gap-12 pt-12 sm:pt-16"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2, duration: 0.8 }}
@@ -104,8 +104,8 @@ export default function Home() {
                     repeatType: 'reverse',
                   }}
                 >
-                  <span className="text-4xl">{item.icon}</span>
-                  <span className="text-sm text-gray-400 font-mono">{item.label}</span>
+                  <span className="text-3xl sm:text-4xl">{item.icon}</span>
+                  <span className="text-xs sm:text-sm text-gray-400 font-mono">{item.label}</span>
                 </motion.div>
               ))}
             </motion.div>
@@ -204,7 +204,7 @@ export default function Home() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="grid grid-cols-2 gap-6"
+              className="grid grid-cols-2 gap-4 sm:gap-6"
             >
               {[
                 { title: 'Students Trained', value: '500+', icon: '👨‍🎓' },
@@ -214,15 +214,15 @@ export default function Home() {
               ].map((stat, index) => (
                 <motion.div
                   key={stat.title}
-                  className="card text-center"
+                  className="card text-center p-4 sm:p-6"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <div className="text-4xl mb-2">{stat.icon}</div>
-                  <div className="text-3xl font-bold glow-text mb-2">{stat.value}</div>
-                  <div className="text-sm text-gray-400">{stat.title}</div>
+                  <div className="text-3xl sm:text-4xl mb-2">{stat.icon}</div>
+                  <div className="text-2xl sm:text-3xl font-bold glow-text mb-2">{stat.value}</div>
+                  <div className="text-xs sm:text-sm text-gray-400">{stat.title}</div>
                 </motion.div>
               ))}
             </motion.div>

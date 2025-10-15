@@ -252,80 +252,80 @@ export default function AdminDashboard() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-6 sm:py-8 px-3 sm:px-4 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-3 sm:gap-4">
           <div>
-            <h1 className="text-4xl font-bold">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-neon-blue to-neon-purple">
                 Admin Dashboard
               </span>
             </h1>
-            <p className="text-gray-400 mt-2">Welcome back, {session.user?.name}</p>
+            <p className="text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">Welcome back, {session.user?.name}</p>
           </div>
-          <button onClick={() => signOut({ callbackUrl: '/admin/login' })} className="btn-secondary">
+          <button onClick={() => signOut({ callbackUrl: '/admin/login' })} className="btn-secondary text-sm sm:text-base w-full md:w-auto">
             Logout
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Total Registrations</p>
-                <p className="text-3xl font-bold text-neon-blue mt-2">{stats.totalRegistrations}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Total Registrations</p>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-neon-blue mt-1 sm:mt-2">{stats.totalRegistrations}</p>
               </div>
-              <div className="w-12 h-12 bg-neon-blue/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">👥</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-neon-blue/20 rounded-lg flex items-center justify-center">
+                <span className="text-lg sm:text-xl md:text-2xl">👥</span>
               </div>
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Total Workshops</p>
-                <p className="text-3xl font-bold text-neon-purple mt-2">{stats.totalEvents}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Total Workshops</p>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-neon-purple mt-1 sm:mt-2">{stats.totalEvents}</p>
               </div>
-              <div className="w-12 h-12 bg-neon-purple/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">📚</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-neon-purple/20 rounded-lg flex items-center justify-center">
+                <span className="text-lg sm:text-xl md:text-2xl">📚</span>
               </div>
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">This Week</p>
-                <p className="text-3xl font-bold text-neon-cyan mt-2">{stats.thisWeek}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">This Week</p>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-neon-cyan mt-1 sm:mt-2">{stats.thisWeek}</p>
               </div>
-              <div className="w-12 h-12 bg-neon-cyan/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">📈</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-neon-cyan/20 rounded-lg flex items-center justify-center">
+                <span className="text-lg sm:text-xl md:text-2xl">📈</span>
               </div>
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Upcoming Events</p>
-                <p className="text-3xl font-bold text-green-400 mt-2">{stats.upcomingEvents}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Upcoming Events</p>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-400 mt-1 sm:mt-2">{stats.upcomingEvents}</p>
               </div>
-              <div className="w-12 h-12 bg-green-400/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">🎯</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-green-400/20 rounded-lg flex items-center justify-center">
+                <span className="text-lg sm:text-xl md:text-2xl">🎯</span>
               </div>
             </div>
           </motion.div>
         </div>
 
-        <div className="flex gap-4 mb-6 border-b border-gray-800">
-          <button onClick={() => setActiveTab('overview')} className={`px-6 py-3 font-semibold transition-all ${activeTab === 'overview' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
+        <div className="flex gap-2 sm:gap-4 mb-4 sm:mb-6 border-b border-gray-800 overflow-x-auto">
+          <button onClick={() => setActiveTab('overview')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'overview' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
             Overview
           </button>
-          <button onClick={() => setActiveTab('workshops')} className={`px-6 py-3 font-semibold transition-all ${activeTab === 'workshops' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
-            Workshop Management
+          <button onClick={() => setActiveTab('workshops')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'workshops' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
+            Workshops
           </button>
-          <button onClick={() => setActiveTab('registrations')} className={`px-6 py-3 font-semibold transition-all ${activeTab === 'registrations' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('registrations')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'registrations' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
             Registrations
           </button>
         </div>
