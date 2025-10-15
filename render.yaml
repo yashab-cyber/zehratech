@@ -1,0 +1,17 @@
+# Render Deployment Configuration
+# This file tells Render how to build and run your app
+
+# Build Command
+buildCommand = "npm install && npm run build"
+
+# Start Command
+startCommand = "npm run start"
+
+# Environment
+environment = "node"
+
+# Health Check Path (optional)
+healthCheckPath = "/"
+
+# Auto-Deploy
+autoDeploy = true
