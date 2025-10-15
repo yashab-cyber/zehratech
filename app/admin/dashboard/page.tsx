@@ -31,7 +31,7 @@ interface Registration {
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'workshops' | 'registrations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'workshops' | 'registrations' | 'settings'>('overview');
   const [stats, setStats] = useState({
     totalRegistrations: 0,
     totalEvents: 0,
@@ -64,6 +64,17 @@ export default function AdminDashboard() {
     maxParticipants: 50,
     status: 'upcoming',
   });
+
+  // Settings form state
+  const [settingsForm, setSettingsForm] = useState({
+    currentPassword: '',
+    newUsername: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [settingsMessage, setSettingsMessage] = useState('');
+  const [settingsError, setSettingsError] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -238,6 +249,57 @@ export default function AdminDashboard() {
     return matchesSearch && matchesEvent && matchesClass;
   });
 
+  const handleUpdateSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSettingsLoading(true);
+    setSettingsError('');
+    setSettingsMessage('');
+
+    // Validate passwords match
+    if (settingsForm.newPassword && settingsForm.newPassword !== settingsForm.confirmPassword) {
+      setSettingsError('New passwords do not match');
+      setSettingsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: settingsForm.currentPassword,
+          newUsername: settingsForm.newUsername || undefined,
+          newPassword: settingsForm.newPassword || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSettingsMessage('Settings updated successfully! Please login again with new credentials.');
+        setSettingsForm({
+          currentPassword: '',
+          newUsername: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+        // Sign out after 2 seconds if credentials changed
+        if (settingsForm.newUsername || settingsForm.newPassword) {
+          setTimeout(() => {
+            signOut({ callbackUrl: '/admin/login' });
+          }, 2000);
+        }
+      } else {
+        setSettingsError(data.error || 'Failed to update settings');
+      }
+    } catch (error) {
+      console.error('Update settings error:', error);
+      setSettingsError('An error occurred while updating settings');
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -327,6 +389,9 @@ export default function AdminDashboard() {
           </button>
           <button onClick={() => setActiveTab('registrations')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'registrations' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
             Registrations
+          </button>
+          <button onClick={() => setActiveTab('settings')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'settings' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
+            Settings
           </button>
         </div>
 
@@ -558,6 +623,139 @@ export default function AdminDashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'settings' && (
+            <motion.div key="settings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <div className="max-w-2xl mx-auto">
+                <div className="card">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Admin Settings</h2>
+                  <p className="text-gray-400 mb-6 text-sm sm:text-base">Update your admin username and password</p>
+
+                  {settingsMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-green-500/20 border border-green-500 text-green-300 px-4 sm:px-6 py-3 sm:py-4 rounded-lg mb-6 text-sm sm:text-base"
+                    >
+                      ✅ {settingsMessage}
+                    </motion.div>
+                  )}
+
+                  {settingsError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-500/20 border border-red-500 text-red-300 px-4 sm:px-6 py-3 sm:py-4 rounded-lg mb-6 text-sm sm:text-base"
+                    >
+                      ❌ {settingsError}
+                    </motion.div>
+                  )}
+
+                  <form onSubmit={handleUpdateSettings} className="space-y-6">
+                    <div>
+                      <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                        Current Password <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="currentPassword"
+                        type="password"
+                        value={settingsForm.currentPassword}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, currentPassword: e.target.value })}
+                        className="input-field"
+                        placeholder="Enter current password"
+                        required
+                      />
+                      <p className="mt-1 text-xs text-gray-500">Required to make any changes</p>
+                    </div>
+
+                    <div className="border-t border-gray-700 pt-6">
+                      <h3 className="text-lg font-semibold text-white mb-4">Change Username</h3>
+                      <div>
+                        <label htmlFor="newUsername" className="block text-sm font-medium text-gray-300 mb-2">
+                          New Username (Optional)
+                        </label>
+                        <input
+                          id="newUsername"
+                          type="text"
+                          value={settingsForm.newUsername}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, newUsername: e.target.value })}
+                          className="input-field"
+                          placeholder={`Current: ${session?.user?.name || 'admin'}`}
+                        />
+                        <p className="mt-1 text-xs text-gray-500">Leave blank to keep current username</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-700 pt-6">
+                      <h3 className="text-lg font-semibold text-white mb-4">Change Password</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                            New Password (Optional)
+                          </label>
+                          <input
+                            id="newPassword"
+                            type="password"
+                            value={settingsForm.newPassword}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, newPassword: e.target.value })}
+                            className="input-field"
+                            placeholder="Enter new password"
+                            minLength={6}
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                            Confirm New Password
+                          </label>
+                          <input
+                            id="confirmPassword"
+                            type="password"
+                            value={settingsForm.confirmPassword}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, confirmPassword: e.target.value })}
+                            className="input-field"
+                            placeholder="Confirm new password"
+                            minLength={6}
+                          />
+                          <p className="mt-1 text-xs text-gray-500">Minimum 6 characters. Leave blank to keep current password.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+                      <button
+                        type="submit"
+                        disabled={settingsLoading}
+                        className="flex-1 btn-primary py-3 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {settingsLoading ? 'Updating...' : 'Update Settings'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSettingsForm({ currentPassword: '', newUsername: '', newPassword: '', confirmPassword: '' });
+                          setSettingsError('');
+                          setSettingsMessage('');
+                        }}
+                        className="flex-1 btn-secondary py-3 text-base sm:text-lg"
+                      >
+                        Reset Form
+                      </button>
+                    </div>
+                  </form>
+
+                  <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <h3 className="text-yellow-500 font-semibold mb-2 text-sm sm:text-base flex items-center gap-2">
+                      <span>⚠️</span> Security Note
+                    </h3>
+                    <p className="text-gray-400 text-xs sm:text-sm">
+                      After changing your username or password, you will be automatically logged out and need to login again with your new credentials.
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.div>
