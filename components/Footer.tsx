@@ -13,6 +13,10 @@ const footerLinks = {
     { label: 'Register', href: '/register' },
     { label: 'Admin', href: '/admin/login' },
   ],
+  legal: [
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Terms of Service', href: '/terms-of-service' },
+  ],
   social: [
     { label: 'LinkedIn (Yashab)', href: 'https://www.linkedin.com/in/yashab-alam', icon: 'linkedin' },
     { label: 'GitHub', href: 'https://github.com/yashab-cyber', icon: 'github' },
@@ -24,9 +28,9 @@ export default function Footer() {
   return (
     <footer className="bg-dark-900 border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1 md:col-span-2 lg:col-span-1">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -83,6 +87,28 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
               {footerLinks.resources.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-gray-400 hover:text-neon-blue text-sm transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Legal */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <h3 className="text-white font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2">
+              {footerLinks.legal.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
