@@ -1,0 +1,30 @@
+{
+  "name": "ZehraTech - AI & Tech Education",
+  "short_name": "ZehraTech",
+  "description": "Learn Artificial Intelligence, Machine Learning, and Cybersecurity with expert trainer Yashab Alam",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#00f0ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "technology", "training"],
+  "lang": "en-IN",
+  "dir": "ltr",
+  "scope": "/",
+  "related_applications": [],
+  "prefer_related_applications": false
+}
