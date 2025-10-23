@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
     
     const name = formData.get('name') as string;
     const studentClass = formData.get('class') as string;
+    const course = formData.get('course') as string | null;
+    const section = formData.get('section') as string | null;
     const school = formData.get('school') as string;
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
@@ -51,6 +53,8 @@ export async function POST(request: NextRequest) {
     const student = await Student.create({
       name,
       class: studentClass,
+      course: course || undefined,
+      section: section || undefined,
       school,
       email,
       phone,

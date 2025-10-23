@@ -9,7 +9,9 @@ import { useSearchParams } from 'next/navigation';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  class: z.enum(['9', '10', '11', '12'], { message: 'Please select a class' }),
+  class: z.enum(['9', '10', '11', '12', 'UG', 'PG'], { message: 'Please select a class' }),
+  course: z.string().optional(),
+  section: z.string().optional(),
   school: z.string().min(2, 'School name is required'),
   email: z.string().email('Invalid email address'),
   phone: z.string().regex(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
@@ -24,6 +26,7 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [selectedClass, setSelectedClass] = useState('');
   const searchParams = useSearchParams();
   const selectedEvent = searchParams.get('event');
 
@@ -32,12 +35,15 @@ function RegisterForm() {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       event: selectedEvent || '',
     },
   });
+
+  const classValue = watch('class');
 
   useEffect(() => {
     fetchEvents();
@@ -63,6 +69,8 @@ function RegisterForm() {
       const formData = new FormData();
       formData.append('name', data.name);
       formData.append('class', data.class);
+      if (data.course) formData.append('course', data.course);
+      if (data.section) formData.append('section', data.section);
       formData.append('school', data.school);
       formData.append('email', data.email);
       formData.append('phone', data.phone);
@@ -161,6 +169,8 @@ function RegisterForm() {
                   <option value="10">Class 10</option>
                   <option value="11">Class 11</option>
                   <option value="12">Class 12</option>
+                  <option value="UG">UG (Undergraduate)</option>
+                  <option value="PG">PG (Postgraduate)</option>
                 </select>
                 {errors.class && (
                   <p className="mt-1 text-sm text-red-400">{errors.class.message}</p>
@@ -183,6 +193,51 @@ function RegisterForm() {
                 )}
               </div>
             </div>
+
+            {/* Section */}
+            <div>
+              <label htmlFor="section" className="block text-sm font-medium text-gray-300 mb-2">
+                Section
+              </label>
+              <input
+                id="section"
+                type="text"
+                {...register('section')}
+                className="input-field"
+                placeholder="Enter section (e.g., A, B, C)"
+              />
+              <p className="mt-1 text-xs text-gray-500">Optional: Enter your class section</p>
+            </div>
+
+            {/* Conditional Course Selection for UG/PG */}
+            {(classValue === 'UG' || classValue === 'PG') && (
+              <div>
+                <label htmlFor="course" className="block text-sm font-medium text-gray-300 mb-2">
+                  Course <span className="text-red-500">*</span>
+                </label>
+                <select id="course" {...register('course')} className="input-field">
+                  <option value="">Select Course</option>
+                  {classValue === 'UG' && (
+                    <>
+                      <option value="BTech">B.Tech</option>
+                      <option value="BBA">BBA</option>
+                      <option value="BCA">BCA</option>
+                      <option value="BSc">B.Sc</option>
+                    </>
+                  )}
+                  {classValue === 'PG' && (
+                    <>
+                      <option value="MBA">MBA</option>
+                      <option value="MCA">MCA</option>
+                      <option value="MSc">M.Sc</option>
+                    </>
+                  )}
+                </select>
+                {errors.course && (
+                  <p className="mt-1 text-sm text-red-400">{errors.course.message}</p>
+                )}
+              </div>
+            )}
 
             {/* Email & Phone Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

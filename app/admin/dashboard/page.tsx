@@ -21,6 +21,8 @@ interface Registration {
   _id: string;
   name: string;
   class: string;
+  course?: string;
+  section?: string;
   school: string;
   email: string;
   phone: string;
@@ -578,6 +580,8 @@ export default function AdminDashboard() {
                       <option value="10">Class 10</option>
                       <option value="11">Class 11</option>
                       <option value="12">Class 12</option>
+                      <option value="UG">UG (Undergraduate)</option>
+                      <option value="PG">PG (Postgraduate)</option>
                     </select>
                   </div>
                   <button onClick={handleExport} className="btn-primary whitespace-nowrap">💾 Export CSV</button>
@@ -592,6 +596,8 @@ export default function AdminDashboard() {
                       <tr className="border-b border-gray-700">
                         <th className="text-left py-3 px-4 text-gray-400 font-semibold">Name</th>
                         <th className="text-left py-3 px-4 text-gray-400 font-semibold">Class</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-semibold">Section</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-semibold">Course</th>
                         <th className="text-left py-3 px-4 text-gray-400 font-semibold">School</th>
                         <th className="text-left py-3 px-4 text-gray-400 font-semibold">Email</th>
                         <th className="text-left py-3 px-4 text-gray-400 font-semibold">Phone</th>
@@ -606,6 +612,8 @@ export default function AdminDashboard() {
                           <tr key={reg._id} className="border-b border-gray-800 hover:bg-dark-700">
                             <td className="py-3 px-4 text-white">{reg.name}</td>
                             <td className="py-3 px-4 text-gray-300">{reg.class}</td>
+                            <td className="py-3 px-4 text-gray-300">{reg.section || '-'}</td>
+                            <td className="py-3 px-4 text-gray-300">{reg.course || '-'}</td>
                             <td className="py-3 px-4 text-gray-300">{reg.school}</td>
                             <td className="py-3 px-4 text-gray-300">{reg.email}</td>
                             <td className="py-3 px-4 text-gray-300">{reg.phone}</td>
@@ -618,7 +626,7 @@ export default function AdminDashboard() {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={8} className="py-8 text-center text-gray-500">No registrations found</td>
+                          <td colSpan={10} className="py-8 text-center text-gray-500">No registrations found</td>
                         </tr>
                       )}
                     </tbody>

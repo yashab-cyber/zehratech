@@ -3,6 +3,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IStudent extends Document {
   name: string;
   class: string;
+  course?: string;
+  section?: string;
   school: string;
   email: string;
   phone: string;
@@ -20,7 +22,15 @@ const StudentSchema: Schema = new Schema({
   class: {
     type: String,
     required: [true, 'Class is required'],
-    enum: ['9', '10', '11', '12'],
+    enum: ['9', '10', '11', '12', 'UG', 'PG'],
+  },
+  course: {
+    type: String,
+    trim: true,
+  },
+  section: {
+    type: String,
+    trim: true,
   },
   school: {
     type: String,

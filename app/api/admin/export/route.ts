@@ -11,10 +11,12 @@ export async function GET() {
     const students = await Student.find({}).sort({ createdAt: -1 }).lean();
 
     // Convert to CSV
-    const headers = ['Name', 'Class', 'School', 'Email', 'Phone', 'Event', 'Registration Date'];
+    const headers = ['Name', 'Class', 'Section', 'Course', 'School', 'Email', 'Phone', 'Event', 'Registration Date'];
     const rows = students.map(student => [
       student.name,
       student.class,
+      student.section || '',
+      student.course || '',
       student.school,
       student.email,
       student.phone,
