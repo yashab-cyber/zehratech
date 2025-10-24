@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
@@ -21,13 +22,21 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-3">
             <div className="relative">
               <div className="absolute inset-0 bg-neon-blue blur-lg opacity-50"></div>
               <span className="relative text-2xl font-bold text-neon-blue font-mono">
                 ZehraTech
               </span>
             </div>
+            <Image 
+              src="/zehra.png" 
+              alt="ZehraTech Logo" 
+              width={40} 
+              height={40}
+              className="object-contain"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}
