@@ -121,11 +121,41 @@ function RegisterForm() {
 
           {success && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-green-500/20 border border-green-500 text-green-300 px-6 py-4 rounded-lg mb-6"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500 rounded-xl p-8 mb-6 text-center"
             >
-              ✅ Registration successful! We&apos;ll contact you soon with more details.
+              <div className="mb-4">
+                <span className="text-6xl">🎉</span>
+              </div>
+              <h2 className="text-2xl font-bold text-green-400 mb-3">
+                Thank You for Registering!
+              </h2>
+              <p className="text-green-300 text-lg mb-4">
+                Your registration has been successfully submitted.
+              </p>
+              <div className="bg-dark-800/50 rounded-lg p-4 mb-4">
+                <p className="text-gray-300 mb-2">
+                  <span className="text-neon-cyan font-semibold">What's next?</span>
+                </p>
+                <ul className="text-gray-400 text-sm space-y-2 text-left max-w-md mx-auto">
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-2">✓</span>
+                    <span>You'll receive a confirmation email within 24 hours</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-2">✓</span>
+                    <span>Our team will contact you with workshop details</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-2">✓</span>
+                    <span>Prepare to embark on an amazing learning journey!</span>
+                  </li>
+                </ul>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Have questions? Contact us at <a href="tel:+918960457971" className="text-neon-blue hover:text-neon-cyan">+91 8960457971</a>
+              </p>
             </motion.div>
           )}
 
