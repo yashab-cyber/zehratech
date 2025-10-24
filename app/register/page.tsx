@@ -26,7 +26,6 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [selectedClass, setSelectedClass] = useState('');
   const searchParams = useSearchParams();
   const selectedEvent = searchParams.get('event');
 
@@ -136,12 +135,12 @@ function RegisterForm() {
               </p>
               <div className="bg-dark-800/50 rounded-lg p-4 mb-4">
                 <p className="text-gray-300 mb-2">
-                  <span className="text-neon-cyan font-semibold">What's next?</span>
+                  <span className="text-neon-cyan font-semibold">What&apos;s next?</span>
                 </p>
                 <ul className="text-gray-400 text-sm space-y-2 text-left max-w-md mx-auto">
                   <li className="flex items-start">
                     <span className="text-green-400 mr-2">✓</span>
-                    <span>You'll receive a confirmation email within 24 hours</span>
+                    <span>You&apos;ll receive a confirmation email within 24 hours</span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-green-400 mr-2">✓</span>
