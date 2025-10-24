@@ -277,10 +277,8 @@ export default function AdminDashboard() {
   const handleDeleteWorkshop = async (id: string) => {
     if (!confirm('Are you sure you want to delete this workshop?')) return;
     try {
-      const response = await fetch('/api/admin/events', {
+      const response = await fetch(`/api/admin/events?id=${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
       });
       if (response.ok) {
         fetchData();
