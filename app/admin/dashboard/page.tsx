@@ -30,10 +30,19 @@ interface Registration {
   createdAt: string;
 }
 
+interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  status: 'new' | 'read' | 'replied';
+  createdAt: string;
+}
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'workshops' | 'registrations' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'workshops' | 'registrations' | 'messages' | 'settings'>('overview');
   const [stats, setStats] = useState({
     totalRegistrations: 0,
     totalEvents: 0,
@@ -42,10 +51,12 @@ export default function AdminDashboard() {
   });
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [contacts, setContacts] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEvent, setFilterEvent] = useState('');
   const [filterClass, setFilterClass] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   
   const [showWorkshopForm, setShowWorkshopForm] = useState(false);
   const [editingWorkshop, setEditingWorkshop] = useState<Event | null>(null);
@@ -110,6 +121,13 @@ export default function AdminDashboard() {
           (e: Event) => e.status === 'upcoming'
         ).length;
 
+        // Fetch contact messages
+        const contactsRes = await fetch('/api/admin/contacts');
+        if (contactsRes.ok) {
+          const contactsData = await contactsRes.json();
+          setContacts(contactsData.contacts || []);
+        }
+
         setStats({
           totalRegistrations: total,
           totalEvents: eventsList.length,
@@ -156,6 +174,41 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Delete error:', error);
       alert('Failed to delete registration');
+    }
+  };
+
+  const handleUpdateContactStatus = async (id: string, newStatus: 'new' | 'read' | 'replied') => {
+    try {
+      const response = await fetch('/api/admin/contacts', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      if (response.ok) {
+        fetchData();
+      } else {
+        alert('Failed to update status');
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      alert('Failed to update status');
+    }
+  };
+
+  const handleDeleteContact = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+    try {
+      const response = await fetch(`/api/admin/contacts?id=${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        fetchData();
+      } else {
+        alert('Failed to delete message');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete message');
     }
   };
 
@@ -391,6 +444,9 @@ export default function AdminDashboard() {
           </button>
           <button onClick={() => setActiveTab('registrations')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'registrations' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
             Registrations
+          </button>
+          <button onClick={() => setActiveTab('messages')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'messages' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
+            Messages
           </button>
           <button onClick={() => setActiveTab('settings')} className={`px-3 sm:px-6 py-2 sm:py-3 font-semibold transition-all text-xs sm:text-sm md:text-base whitespace-nowrap ${activeTab === 'settings' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}>
             Settings
@@ -631,6 +687,116 @@ export default function AdminDashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'messages' && (
+            <motion.div key="messages" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <div className="card mb-6">
+                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
+                  <h2 className="text-2xl font-bold text-white">Contact Messages ({contacts.length})</h2>
+                  <select 
+                    value={filterStatus} 
+                    onChange={(e) => setFilterStatus(e.target.value)} 
+                    className="input-field"
+                  >
+                    <option value="">All Messages</option>
+                    <option value="new">New</option>
+                    <option value="read">Read</option>
+                    <option value="replied">Replied</option>
+                  </select>
+                </div>
+
+                <div className="space-y-4">
+                  {contacts
+                    .filter((contact) => !filterStatus || contact.status === filterStatus)
+                    .map((contact) => (
+                      <div 
+                        key={contact._id} 
+                        className={`bg-dark-700 rounded-lg p-6 border ${
+                          contact.status === 'new' 
+                            ? 'border-neon-blue/50' 
+                            : 'border-gray-700'
+                        } hover:border-neon-blue/30 transition-all`}
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-semibold text-white">{contact.name}</h3>
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                contact.status === 'new' 
+                                  ? 'bg-blue-500/20 text-blue-400' 
+                                  : contact.status === 'read'
+                                  ? 'bg-yellow-500/20 text-yellow-400'
+                                  : 'bg-green-500/20 text-green-400'
+                              }`}>
+                                {contact.status.toUpperCase()}
+                              </span>
+                            </div>
+                            <p className="text-gray-400 text-sm mb-2">
+                              <a href={`mailto:${contact.email}`} className="text-neon-cyan hover:underline">
+                                {contact.email}
+                              </a>
+                            </p>
+                            <p className="text-gray-500 text-xs">
+                              {new Date(contact.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleDeleteContact(contact._id)}
+                              className="text-red-400 hover:text-red-300 transition-colors px-3 py-1 text-sm"
+                              title="Delete"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <p className="text-gray-300 whitespace-pre-wrap bg-dark-800 p-4 rounded-lg border border-gray-700">
+                            {contact.message}
+                          </p>
+                        </div>
+
+                        <div className="flex gap-2 pt-4 border-t border-gray-700">
+                          <button
+                            onClick={() => handleUpdateContactStatus(contact._id, 'read')}
+                            disabled={contact.status === 'read'}
+                            className="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                          >
+                            Mark as Read
+                          </button>
+                          <button
+                            onClick={() => handleUpdateContactStatus(contact._id, 'replied')}
+                            disabled={contact.status === 'replied'}
+                            className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                          >
+                            Mark as Replied
+                          </button>
+                          <a
+                            href={`mailto:${contact.email}?subject=Re: Your message to ZehraTech&body=Hi ${contact.name},%0D%0A%0D%0A`}
+                            className="px-4 py-2 bg-neon-blue/20 text-neon-blue rounded-lg hover:bg-neon-blue/30 transition-all text-sm"
+                          >
+                            Reply via Email
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  
+                  {contacts.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500">No messages yet</p>
+                    </div>
+                  )}
+                  
+                  {contacts.length > 0 && contacts.filter((c) => !filterStatus || c.status === filterStatus).length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500">No messages match the selected filter</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
