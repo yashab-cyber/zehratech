@@ -1,0 +1,79 @@
+{
+  "name": "Contact Form Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "contact-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-1",
+      "name": "Webhook - Contact Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "contact-form-webhook"
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@zehratech.in",
+        "toEmail": "admin@zehratech.in",
+        "subject": "New Contact Form Submission - {{ $json.name }}",
+        "emailType": "html",
+        "text": "",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }\n    .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; }\n    .field { margin-bottom: 15px; }\n    .label { font-weight: bold; color: #0EA5E9; }\n    .footer { background: #333; color: white; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h2>🔔 New Contact Form Submission</h2>\n    </div>\n    <div class=\"content\">\n      <div class=\"field\">\n        <span class=\"label\">Name:</span><br>\n        {{ $json.name }}\n      </div>\n      <div class=\"field\">\n        <span class=\"label\">Email:</span><br>\n        {{ $json.email }}\n      </div>\n      <div class=\"field\">\n        <span class=\"label\">Phone:</span><br>\n        {{ $json.phone }}\n      </div>\n      <div class=\"field\">\n        <span class=\"label\">Message:</span><br>\n        {{ $json.message }}\n      </div>\n      <div class=\"field\">\n        <span class=\"label\">Submitted:</span><br>\n        {{ $json.createdAt }}\n      </div>\n    </div>\n    <div class=\"footer\">\n      <p>ZehraTech - Building Tomorrow's Technology Today</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "send-email-1",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Notification sent\" } }}"
+      },
+      "id": "respond-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Contact Form": {
+      "main": [
+        [
+          {
+            "node": "Send Email Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

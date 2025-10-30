@@ -1,0 +1,98 @@
+{
+  "name": "Workshop Registration Confirmation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "registration-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-2",
+      "name": "Webhook - Registration",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "registration-webhook"
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@zehratech.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Registration Confirmed - {{ $json.eventTitle }}",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }\n    .container { max-width: 600px; margin: 0 auto; }\n    .header { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); color: white; padding: 30px; text-align: center; }\n    .logo { font-size: 28px; font-weight: bold; margin-bottom: 10px; }\n    .content { background: white; padding: 30px; }\n    .success-badge { background: #10B981; color: white; padding: 10px 20px; border-radius: 25px; display: inline-block; margin: 20px 0; }\n    .details { background: #f0f9ff; border-left: 4px solid #0EA5E9; padding: 20px; margin: 20px 0; }\n    .detail-row { margin: 10px 0; }\n    .label { font-weight: bold; color: #0EA5E9; }\n    .next-steps { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; }\n    .footer { background: #1f2937; color: white; padding: 20px; text-align: center; }\n    .button { background: #0EA5E9; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 10px 0; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"logo\">⚡ ZehraTech</div>\n      <h2>Workshop Registration Confirmed!</h2>\n    </div>\n    <div class=\"content\">\n      <div class=\"success-badge\">✓ Successfully Registered</div>\n      \n      <p>Dear {{ $json.name }},</p>\n      \n      <p>Thank you for registering! We're excited to have you join us.</p>\n      \n      <div class=\"details\">\n        <h3 style=\"margin-top: 0; color: #0EA5E9;\">📋 Registration Details</h3>\n        <div class=\"detail-row\">\n          <span class=\"label\">Workshop:</span> {{ $json.eventTitle }}\n        </div>\n        <div class=\"detail-row\">\n          <span class=\"label\">Name:</span> {{ $json.name }}\n        </div>\n        <div class=\"detail-row\">\n          <span class=\"label\">Email:</span> {{ $json.email }}\n        </div>\n        <div class=\"detail-row\">\n          <span class=\"label\">Phone:</span> {{ $json.phone }}\n        </div>\n        <div class=\"detail-row\">\n          <span class=\"label\">Class:</span> {{ $json.class }}\n        </div>\n        {{ $json.section ? '<div class=\"detail-row\"><span class=\"label\">Section:</span> ' + $json.section + '</div>' : '' }}\n        {{ $json.course ? '<div class=\"detail-row\"><span class=\"label\">Course:</span> ' + $json.course + '</div>' : '' }}\n        <div class=\"detail-row\">\n          <span class=\"label\">Registration Date:</span> {{ $json.createdAt }}\n        </div>\n      </div>\n      \n      <div class=\"next-steps\">\n        <h3 style=\"margin-top: 0; color: #f59e0b;\">📌 Next Steps</h3>\n        <ol>\n          <li><strong>Check Your Email:</strong> Save this confirmation for your records</li>\n          <li><strong>Mark Your Calendar:</strong> Don't miss the workshop date</li>\n          <li><strong>Prepare:</strong> Bring a notebook and enthusiasm to learn</li>\n          <li><strong>Stay Updated:</strong> We'll send you reminders and workshop materials</li>\n        </ol>\n      </div>\n      \n      <p style=\"margin-top: 30px;\">\n        <a href=\"https://zehratech.in\" class=\"button\">Visit Our Website</a>\n      </p>\n      \n      <p>If you have any questions, feel free to contact us at <a href=\"tel:+918960457971\">+91 8960457971</a></p>\n      \n      <p style=\"margin-top: 30px; color: #666;\">\n        See you at the workshop!<br>\n        <strong>Team ZehraTech</strong>\n      </p>\n    </div>\n    <div class=\"footer\">\n      <p><strong>ZehraTech</strong></p>\n      <p>Building Tomorrow's Technology Today</p>\n      <p style=\"font-size: 12px; margin-top: 10px;\">AI Automation | Web Development | Custom Software | Cybersecurity</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "send-confirmation-1",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@zehratech.in",
+        "toEmail": "admin@zehratech.in",
+        "subject": "New Workshop Registration - {{ $json.eventTitle }}",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: #1f2937; color: white; padding: 20px; border-radius: 8px 8px 0 0; }\n    .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; }\n    .field { margin-bottom: 12px; }\n    .label { font-weight: bold; color: #0EA5E9; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h2>🎓 New Workshop Registration</h2>\n    </div>\n    <div class=\"content\">\n      <div class=\"field\"><span class=\"label\">Workshop:</span> {{ $json.eventTitle }}</div>\n      <div class=\"field\"><span class=\"label\">Name:</span> {{ $json.name }}</div>\n      <div class=\"field\"><span class=\"label\">Email:</span> {{ $json.email }}</div>\n      <div class=\"field\"><span class=\"label\">Phone:</span> {{ $json.phone }}</div>\n      <div class=\"field\"><span class=\"label\">Class:</span> {{ $json.class }}</div>\n      {{ $json.section ? '<div class=\"field\"><span class=\"label\">Section:</span> ' + $json.section + '</div>' : '' }}\n      {{ $json.course ? '<div class=\"field\"><span class=\"label\">Course:</span> ' + $json.course + '</div>' : '' }}\n      <div class=\"field\"><span class=\"label\">School:</span> {{ $json.school }}</div>\n      <div class=\"field\"><span class=\"label\">Registered:</span> {{ $json.createdAt }}</div>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "notify-admin-1",
+      "name": "Notify Admin",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [450, 450]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Registration confirmed\" } }}"
+      },
+      "id": "respond-2",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Registration": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Confirmation Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}
