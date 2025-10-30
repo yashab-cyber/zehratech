@@ -23,25 +23,49 @@
     },
     {
       "parameters": {
-        "url": "https://zehratech.onrender.com/api/admin/registrations",
-        "method": "GET"
+        "operation": "find",
+        "collection": "students",
+        "options": {
+          "limit": 1000,
+          "sort": {
+            "createdAt": -1
+          }
+        }
       },
       "id": "get-registrations-1",
       "name": "Get Weekly Registrations",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [450, 250]
+      "type": "n8n-nodes-base.mongodb",
+      "typeVersion": 1,
+      "position": [450, 250],
+      "credentials": {
+        "mongodb": {
+          "id": "YOUR_MONGODB_CREDENTIALS_ID",
+          "name": "MongoDB account"
+        }
+      }
     },
     {
       "parameters": {
-        "url": "https://zehratech.onrender.com/api/admin/contacts",
-        "method": "GET"
+        "operation": "find",
+        "collection": "contacts",
+        "options": {
+          "limit": 1000,
+          "sort": {
+            "createdAt": -1
+          }
+        }
       },
       "id": "get-contacts-1",
       "name": "Get Weekly Contacts",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [450, 350]
+      "type": "n8n-nodes-base.mongodb",
+      "typeVersion": 1,
+      "position": [450, 350],
+      "credentials": {
+        "mongodb": {
+          "id": "YOUR_MONGODB_CREDENTIALS_ID",
+          "name": "MongoDB account"
+        }
+      }
     },
     {
       "parameters": {
