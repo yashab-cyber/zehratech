@@ -1,0 +1,188 @@
+{
+  "name": "SEO & Content Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 3
+            }
+          ]
+        }
+      },
+      "id": "schedule-seo-1",
+      "name": "Every 3 Days",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/sitemap.xml",
+        "method": "GET"
+      },
+      "id": "fetch-sitemap-1",
+      "name": "Fetch Sitemap",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://www.google.com/ping?sitemap=https://zehratech.in/sitemap.xml",
+        "method": "GET"
+      },
+      "id": "ping-google-1",
+      "name": "Ping Google",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 250]
+    },
+    {
+      "parameters": {
+        "url": "https://www.bing.com/ping?sitemap=https://zehratech.in/sitemap.xml",
+        "method": "GET"
+      },
+      "id": "ping-bing-1",
+      "name": "Ping Bing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 350]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/api/events",
+        "method": "GET"
+      },
+      "id": "get-events-content-1",
+      "name": "Get Workshop Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $input.all();\nconst blogPosts = [];\n\nevents.forEach(event => {\n  const workshop = event.json;\n  \n  // Generate SEO-optimized blog post content\n  const blogPost = {\n    title: `Master ${workshop.title} - Complete Guide 2025`,\n    slug: workshop.title.toLowerCase().replace(/\\s+/g, '-'),\n    metaDescription: `Learn ${workshop.title} with ZehraTech. Hands-on workshop with expert instructors. Register now for our upcoming session!`,\n    keywords: [\n      workshop.title,\n      'workshop',\n      'zehratech',\n      'tech education',\n      'skill development',\n      'online course'\n    ],\n    content: `\n      <h1>Master ${workshop.title} - Complete Workshop Guide</h1>\n      \n      <p>Are you ready to level up your skills in ${workshop.title}? Join ZehraTech's comprehensive workshop designed for both beginners and advanced learners.</p>\n      \n      <h2>What You'll Learn</h2>\n      <p>${workshop.description}</p>\n      \n      <h2>Workshop Details</h2>\n      <ul>\n        <li><strong>Date:</strong> ${workshop.date}</li>\n        <li><strong>Duration:</strong> ${workshop.duration || '4 weeks'}</li>\n        <li><strong>Level:</strong> All levels welcome</li>\n        <li><strong>Certification:</strong> Yes, upon completion</li>\n      </ul>\n      \n      <h2>Why Choose ZehraTech?</h2>\n      <ul>\n        <li>Expert instructors with industry experience</li>\n        <li>Hands-on projects and real-world applications</li>\n        <li>Lifetime access to course materials</li>\n        <li>Career guidance and job placement support</li>\n        <li>Active community of learners</li>\n      </ul>\n      \n      <h2>Prerequisites</h2>\n      <p>Basic computer knowledge and enthusiasm to learn!</p>\n      \n      <h2>Register Now</h2>\n      <p>Limited seats available. <a href=\"https://zehratech.in/register\">Register now</a> to secure your spot!</p>\n      \n      <h2>FAQs</h2>\n      <h3>Is this workshop suitable for beginners?</h3>\n      <p>Absolutely! We design our workshops to accommodate all skill levels.</p>\n      \n      <h3>Will I get a certificate?</h3>\n      <p>Yes, you'll receive a certificate upon successful completion.</p>\n      \n      <h3>What if I miss a session?</h3>\n      <p>All sessions are recorded and available for review.</p>\n      \n      <p><strong>Ready to start your journey?</strong> <a href=\"https://zehratech.in/register\">Join us today!</a></p>\n    `,\n    author: 'ZehraTech Team',\n    publishDate: new Date().toISOString(),\n    category: 'Workshops',\n    tags: ['education', 'technology', 'workshop', workshop.title.toLowerCase()]\n  };\n  \n  blogPosts.push({ json: blogPost });\n});\n\nreturn blogPosts;"
+      },
+      "id": "generate-content-1",
+      "name": "Generate SEO Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 450]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_CONTENT_SHEET_ID",
+        "range": "Blog Posts!A:H",
+        "options": {}
+      },
+      "id": "save-content-1",
+      "name": "Save to Content Calendar",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [850, 450]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/api/analytics",
+        "method": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "event",
+              "value": "seo_update"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now }}"
+            }
+          ]
+        }
+      },
+      "id": "log-seo-update-1",
+      "name": "Log SEO Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Every 3 Days": {
+      "main": [
+        [
+          {
+            "node": "Fetch Sitemap",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Workshop Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Sitemap": {
+      "main": [
+        [
+          {
+            "node": "Ping Google",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ping Bing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ping Google": {
+      "main": [
+        [
+          {
+            "node": "Log SEO Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Workshop Content": {
+      "main": [
+        [
+          {
+            "node": "Generate SEO Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate SEO Content": {
+      "main": [
+        [
+          {
+            "node": "Save to Content Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["seo", "content", "marketing"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

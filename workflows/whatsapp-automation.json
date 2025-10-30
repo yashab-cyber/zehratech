@@ -1,0 +1,192 @@
+{
+  "name": "WhatsApp Marketing Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-whatsapp-1",
+      "name": "Webhook - Trigger WhatsApp",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.type }}",
+              "operation": "equals"
+            }
+          ]
+        }
+      },
+      "id": "check-message-type-1",
+      "name": "Check Message Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "phoneNumber": "={{ $json.phone }}",
+        "message": "🎉 *Welcome to ZehraTech!*\n\nHi {{ $json.name }}! 👋\n\nThank you for registering for *{{ $json.workshop }}*!\n\n📅 *Workshop Details:*\n• Date: {{ $json.date }}\n• Time: {{ $json.time }}\n• Venue: {{ $json.venue }}\n\n✅ *What's Next:*\n1. Check your email for confirmation\n2. Join our WhatsApp group for updates\n3. Prepare your questions!\n\n💡 *Quick Links:*\n📱 Workshop Group: {{ $json.groupLink }}\n🌐 Our Website: https://zehratech.in\n📞 Support: +91 8960457971\n\nSee you soon! 🚀\n\n*Team ZehraTech*",
+        "options": {}
+      },
+      "id": "send-registration-wa-1",
+      "name": "Send Registration Confirmation",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "phoneNumber": "={{ $json.phone }}",
+        "message": "⏰ *Reminder: Workshop Tomorrow!*\n\nHi {{ $json.name }}! 👋\n\nThis is a friendly reminder about your workshop:\n\n🎓 *{{ $json.workshop }}*\n📅 Tomorrow at {{ $json.time }}\n📍 {{ $json.venue }}\n\n✅ *Things to Bring:*\n• Laptop/Device\n• Notebook & Pen\n• Your enthusiasm! 🔥\n\n💡 *Pro Tips:*\n• Arrive 15 minutes early\n• Charge your devices\n• Bring questions!\n\n📍 *Location:* {{ $json.mapLink }}\n\nExcited to see you! 🚀\n\n*Team ZehraTech*\n📞 +91 8960457971",
+        "options": {}
+      },
+      "id": "send-reminder-wa-1",
+      "name": "Send Workshop Reminder",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "phoneNumber": "={{ $json.phone }}",
+        "message": "🌟 *New Workshop Alert!*\n\nHi {{ $json.name }}! 👋\n\nWe have an exciting new workshop that might interest you:\n\n🎯 *{{ $json.workshop }}*\n📅 {{ $json.date }}\n⏰ {{ $json.time }}\n\n✨ *What You'll Learn:*\n{{ $json.highlights }}\n\n💰 *Early Bird Offer:*\n{{$json.discount }}% OFF for next 48 hours!\nUse code: *EARLY2025*\n\n🎁 *Benefits:*\n✅ Hands-on Projects\n✅ Expert Instructors\n✅ Certificate\n✅ Career Support\n\n👉 Register Now: https://zehratech.in/register\n\n*Limited seats available!* 🔥\n\n*Team ZehraTech*\n📞 +91 8960457971",
+        "options": {}
+      },
+      "id": "send-promotion-wa-1",
+      "name": "Send Promotional Message",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "phoneNumber": "={{ $json.phone }}",
+        "message": "🎊 *Congratulations!*\n\nHi {{ $json.name }}! 👋\n\nYou've successfully completed:\n*{{ $json.workshop }}* 🎓\n\n✨ *What's Next:*\n\n📜 *Certificate:*\nYour certificate is ready!\nDownload: {{ $json.certificateLink }}\n\n📊 *Performance Report:*\n• Attendance: {{ $json.attendance }}%\n• Projects: {{ $json.projects }}\n• Overall: {{ $json.grade }}\n\n💼 *Career Resources:*\n• Resume templates\n• Interview preparation\n• Job opportunities\nAccess: {{ $json.resourcesLink }}\n\n🌟 *Stay Connected:*\n• Join our alumni group\n• Get updates on advanced courses\n• Network with peers\n\n💬 *Feedback:*\nHelp us improve: {{ $json.feedbackLink }}\n\nThank you for learning with us! 🚀\n\n*Team ZehraTech*\n📞 +91 8960457971",
+        "options": {}
+      },
+      "id": "send-completion-wa-1",
+      "name": "Send Completion Message",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [650, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"messageSent\": true } }}"
+      },
+      "id": "respond-whatsapp-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Trigger WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Check Message Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Message Type": {
+      "main": [
+        [
+          {
+            "node": "Send Registration Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Workshop Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Promotional Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Completion Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Registration Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Workshop Reminder": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Promotional Message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Completion Message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["marketing", "whatsapp", "automation"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

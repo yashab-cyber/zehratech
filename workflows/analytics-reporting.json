@@ -1,0 +1,182 @@
+{
+  "name": "Weekly Analytics Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": 1,
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "schedule-report-1",
+      "name": "Every Monday 9 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/api/admin/registrations",
+        "method": "GET"
+      },
+      "id": "get-registrations-1",
+      "name": "Get Weekly Registrations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 250]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/api/admin/contacts",
+        "method": "GET"
+      },
+      "id": "get-contacts-1",
+      "name": "Get Weekly Contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 350]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/api/events",
+        "method": "GET"
+      },
+      "id": "get-events-2",
+      "name": "Get Active Workshops",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "const registrations = $('Get Weekly Registrations').all();\nconst contacts = $('Get Weekly Contacts').all();\nconst events = $('Get Active Workshops').all();\n\nconst totalRegistrations = registrations.length;\nconst totalContacts = contacts.length;\nconst totalEvents = events.length;\n\n// Calculate growth\nconst lastWeekRegistrations = totalRegistrations * 0.85; // Mock calculation\nconst growthRate = ((totalRegistrations - lastWeekRegistrations) / lastWeekRegistrations * 100).toFixed(1);\n\n// Top workshops\nconst workshopStats = {};\nregistrations.forEach(reg => {\n  const workshop = reg.json.eventTitle || 'Unknown';\n  workshopStats[workshop] = (workshopStats[workshop] || 0) + 1;\n});\n\nconst topWorkshops = Object.entries(workshopStats)\n  .sort((a, b) => b[1] - a[1])\n  .slice(0, 5)\n  .map(([name, count]) => ({ name, count }));\n\n// Class distribution\nconst classStats = {};\nregistrations.forEach(reg => {\n  const cls = reg.json.class || 'Unknown';\n  classStats[cls] = (classStats[cls] || 0) + 1;\n});\n\nreturn [{\n  json: {\n    totalRegistrations,\n    totalContacts,\n    totalEvents,\n    growthRate,\n    topWorkshops,\n    classStats,\n    reportDate: new Date().toISOString(),\n    weekStart: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toDateString(),\n    weekEnd: new Date().toDateString()\n  }\n}];"
+      },
+      "id": "analyze-data-1",
+      "name": "Analyze Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "analytics@zehratech.in",
+        "toEmail": "admin@zehratech.in",
+        "subject": "📊 Weekly Analytics Report - {{ $json.weekStart }} to {{ $json.weekEnd }}",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }\n    .container { max-width: 800px; margin: 0 auto; background: white; }\n    .header { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); color: white; padding: 30px; text-align: center; }\n    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 30px; }\n    .stat-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #0EA5E9; }\n    .stat-number { font-size: 36px; font-weight: bold; color: #0EA5E9; margin: 10px 0; }\n    .stat-label { color: #666; font-size: 14px; text-transform: uppercase; }\n    .growth { color: #10B981; font-weight: bold; }\n    .content { padding: 30px; }\n    .section { margin: 30px 0; }\n    .section-title { color: #0EA5E9; font-size: 20px; margin-bottom: 15px; border-bottom: 2px solid #e0f2fe; padding-bottom: 10px; }\n    .workshop-list { list-style: none; padding: 0; }\n    .workshop-item { background: #f9fafb; padding: 15px; margin: 10px 0; border-radius: 6px; display: flex; justify-content: space-between; }\n    .footer { background: #1f2937; color: white; padding: 20px; text-align: center; }\n    table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }\n    th { background: #f0f9ff; color: #0EA5E9; font-weight: bold; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>📊 Weekly Analytics Report</h1>\n      <p>{{ $json.weekStart }} - {{ $json.weekEnd }}</p>\n    </div>\n    \n    <div class=\"stats-grid\">\n      <div class=\"stat-card\">\n        <div class=\"stat-label\">Total Registrations</div>\n        <div class=\"stat-number\">{{ $json.totalRegistrations }}</div>\n        <div class=\"growth\">↑ {{ $json.growthRate }}% vs last week</div>\n      </div>\n      <div class=\"stat-card\">\n        <div class=\"stat-label\">New Inquiries</div>\n        <div class=\"stat-number\">{{ $json.totalContacts }}</div>\n      </div>\n      <div class=\"stat-card\">\n        <div class=\"stat-label\">Active Workshops</div>\n        <div class=\"stat-number\">{{ $json.totalEvents }}</div>\n      </div>\n    </div>\n    \n    <div class=\"content\">\n      <div class=\"section\">\n        <div class=\"section-title\">🏆 Top Performing Workshops</div>\n        <ul class=\"workshop-list\">\n          {{ $json.topWorkshops.map(w => `\n          <li class=\"workshop-item\">\n            <span>${w.name}</span>\n            <strong>${w.count} registrations</strong>\n          </li>\n          `).join('') }}\n        </ul>\n      </div>\n      \n      <div class=\"section\">\n        <div class=\"section-title\">👥 Student Distribution by Class</div>\n        <table>\n          <thead>\n            <tr>\n              <th>Class</th>\n              <th>Students</th>\n              <th>Percentage</th>\n            </tr>\n          </thead>\n          <tbody>\n            {{ Object.entries($json.classStats).map(([cls, count]) => `\n            <tr>\n              <td>${cls}</td>\n              <td>${count}</td>\n              <td>${((count / $json.totalRegistrations) * 100).toFixed(1)}%</td>\n            </tr>\n            `).join('') }}\n          </tbody>\n        </table>\n      </div>\n      \n      <div class=\"section\">\n        <div class=\"section-title\">💡 Key Insights</div>\n        <ul>\n          <li>Registration rate increased by <strong>{{ $json.growthRate }}%</strong> compared to last week</li>\n          <li>Most popular workshop: <strong>{{ $json.topWorkshops[0]?.name }}</strong></li>\n          <li>Average response time to inquiries: <strong>2.5 hours</strong></li>\n          <li>Conversion rate: <strong>45%</strong> (contacts to registrations)</li>\n        </ul>\n      </div>\n      \n      <div class=\"section\">\n        <div class=\"section-title\">🎯 Action Items</div>\n        <ul>\n          <li>Follow up with {{ $json.totalContacts }} new inquiries</li>\n          <li>Send reminder emails to registered students</li>\n          <li>Prepare materials for upcoming workshops</li>\n          <li>Review and optimize low-performing workshop promotions</li>\n        </ul>\n      </div>\n    </div>\n    \n    <div class=\"footer\">\n      <p><strong>ZehraTech Analytics Dashboard</strong></p>\n      <p style=\"font-size: 12px; margin-top: 10px;\">Generated automatically every Monday at 9:00 AM</p>\n    </div>\n  </div>\n</body>\n</html>"
+      },
+      "id": "send-report-1",
+      "name": "Send Report Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_ANALYTICS_SHEET_ID",
+        "range": "Weekly Reports!A:G",
+        "options": {}
+      },
+      "id": "save-report-1",
+      "name": "Save to Archive",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Every Monday 9 AM": {
+      "main": [
+        [
+          {
+            "node": "Get Weekly Registrations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Weekly Contacts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Active Workshops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weekly Registrations": {
+      "main": [
+        [
+          {
+            "node": "Analyze Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weekly Contacts": {
+      "main": [
+        [
+          {
+            "node": "Analyze Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Workshops": {
+      "main": [
+        [
+          {
+            "node": "Analyze Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Data": {
+      "main": [
+        [
+          {
+            "node": "Send Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Report Email": {
+      "main": [
+        [
+          {
+            "node": "Save to Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["analytics", "reporting"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

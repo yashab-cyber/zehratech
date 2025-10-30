@@ -1,0 +1,164 @@
+{
+  "name": "Social Media Post Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "schedule-1",
+      "name": "Daily Social Media Scheduler",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/api/events",
+        "method": "GET",
+        "options": {}
+      },
+      "id": "get-events-1",
+      "name": "Get Upcoming Workshops",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.length }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "check-events-1",
+      "name": "Check if Events Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "text": "🚀 Exciting Workshop Alert! 🎓\n\nJoin us for: {{ $json.title }}\n📅 Date: {{ $json.date }}\n📍 Location: {{ $json.location }}\n\n✨ What you'll learn:\n{{ $json.description }}\n\n🎯 Limited seats available!\nRegister now: https://zehratech.in/register\n\n#ZehraTech #Workshop #TechEducation #SkillDevelopment #AI #Cybersecurity #Coding",
+        "additionalFields": {}
+      },
+      "id": "create-post-1",
+      "name": "Create Social Media Post",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [850, 250]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "twitter-post-1",
+      "name": "Post to Twitter/X",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "pageId": "YOUR_FACEBOOK_PAGE_ID",
+        "message": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "facebook-post-1",
+      "name": "Post to Facebook",
+      "type": "n8n-nodes-base.facebook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "linkedin-post-1",
+      "name": "Post to LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [1050, 400]
+    }
+  ],
+  "connections": {
+    "Daily Social Media Scheduler": {
+      "main": [
+        [
+          {
+            "node": "Get Upcoming Workshops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Upcoming Workshops": {
+      "main": [
+        [
+          {
+            "node": "Check if Events Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Events Exist": {
+      "main": [
+        [
+          {
+            "node": "Create Social Media Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Social Media Post": {
+      "main": [
+        [
+          {
+            "node": "Post to Twitter/X",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post to Facebook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post to LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["marketing", "social-media"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,0 +1,207 @@
+{
+  "name": "Lead Generation & Tracking",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-lead-1",
+      "name": "Webhook - New Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_GOOGLE_SHEET_ID",
+        "range": "Leads!A:H",
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "id": "save-to-sheets-1",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [450, 250],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.source }}",
+              "operation": "equals",
+              "value2": "high-value"
+            }
+          ]
+        }
+      },
+      "id": "check-lead-quality-1",
+      "name": "Check Lead Quality",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "channel": "C12345678",
+        "text": "🎯 *New High-Value Lead!*\n\n*Name:* {{ $json.name }}\n*Email:* {{ $json.email }}\n*Phone:* {{ $json.phone }}\n*Interest:* {{ $json.interest }}\n*Source:* {{ $json.source }}\n*Budget:* {{ $json.budget }}\n\n_Action required: Follow up within 1 hour_",
+        "otherOptions": {}
+      },
+      "id": "notify-slack-1",
+      "name": "Notify Team on Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [650, 350],
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "sales@zehratech.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Thank you for your interest in ZehraTech!",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }\n    .container { max-width: 600px; margin: 0 auto; }\n    .header { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); color: white; padding: 30px; text-align: center; }\n    .content { padding: 30px; background: white; }\n    .cta { background: #0EA5E9; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; }\n    .footer { background: #1f2937; color: white; padding: 20px; text-align: center; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>⚡ Welcome to ZehraTech!</h1>\n    </div>\n    <div class=\"content\">\n      <p>Hi {{ $json.name }},</p>\n      \n      <p>Thank you for showing interest in our services! We're excited to help you achieve your technology goals.</p>\n      \n      <p><strong>What's Next?</strong></p>\n      <ul>\n        <li>Our team will review your requirements</li>\n        <li>You'll receive a personalized consultation within 24 hours</li>\n        <li>We'll create a custom solution tailored to your needs</li>\n      </ul>\n      \n      <p style=\"text-align: center;\">\n        <a href=\"https://zehratech.in/services\" class=\"cta\">Explore Our Services</a>\n      </p>\n      \n      <p>In the meantime, feel free to:</p>\n      <ul>\n        <li>📞 Call us: <a href=\"tel:+918960457971\">+91 8960457971</a></li>\n        <li>💬 WhatsApp: <a href=\"https://wa.me/918960457971\">Chat with us</a></li>\n        <li>📧 Email: <a href=\"mailto:info@zehratech.in\">info@zehratech.in</a></li>\n      </ul>\n      \n      <p>Best regards,<br><strong>Team ZehraTech</strong></p>\n    </div>\n    <div class=\"footer\">\n      <p>ZehraTech - Building Tomorrow's Technology Today</p>\n    </div>\n  </div>\n</body>\n</html>"
+      },
+      "id": "auto-reply-1",
+      "name": "Send Auto-Reply",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [650, 250]
+    },
+    {
+      "parameters": {
+        "triggerOn": "specificTime",
+        "date": "={{ $json.followUpDate }}",
+        "options": {}
+      },
+      "id": "schedule-followup-1",
+      "name": "Schedule Follow-up",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "fromEmail": "sales@zehratech.in",
+        "toEmail": "sales@zehratech.in",
+        "subject": "Follow-up Reminder: {{ $json.name }}",
+        "text": "Reminder to follow up with:\n\nName: {{ $json.name }}\nEmail: {{ $json.email }}\nPhone: {{ $json.phone }}\nInterest: {{ $json.interest }}\n\nLead Date: {{ $json.createdAt }}"
+      },
+      "id": "send-reminder-1",
+      "name": "Send Follow-up Reminder",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1050, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Lead captured successfully\" } }}"
+      },
+      "id": "respond-lead-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 250]
+    }
+  ],
+  "connections": {
+    "Webhook - New Lead": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Lead Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Auto-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Lead Quality": {
+      "main": [
+        [
+          {
+            "node": "Notify Team on Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Auto-Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Team on Slack": {
+      "main": [
+        [
+          {
+            "node": "Schedule Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Follow-up": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-up Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["marketing", "crm", "leads"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,0 +1,148 @@
+{
+  "name": "Email Marketing Campaign",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campaign-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-campaign-1",
+      "name": "Webhook - Trigger Campaign",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://zehratech.in/api/admin/registrations",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "options": {}
+      },
+      "id": "get-students-1",
+      "name": "Get All Students",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "split-emails-1",
+      "name": "Split Into Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "marketing@zehratech.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "🚀 New Workshops & Courses at ZehraTech!",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }\n    .container { max-width: 600px; margin: 0 auto; background: white; }\n    .header { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); padding: 40px 20px; text-align: center; }\n    .logo { font-size: 32px; font-weight: bold; color: white; margin-bottom: 10px; }\n    .tagline { color: #e0f2fe; font-size: 14px; }\n    .content { padding: 40px 30px; }\n    .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }\n    .workshop-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 4px solid #0EA5E9; padding: 20px; margin: 20px 0; border-radius: 8px; }\n    .workshop-title { font-size: 20px; font-weight: bold; color: #0EA5E9; margin-bottom: 10px; }\n    .workshop-desc { color: #555; line-height: 1.6; }\n    .cta-button { display: inline-block; background: #0EA5E9; color: white; padding: 15px 40px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }\n    .cta-button:hover { background: #0284c7; }\n    .benefits { background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; }\n    .benefits h3 { color: #f59e0b; margin-top: 0; }\n    .benefits ul { color: #666; line-height: 1.8; }\n    .footer { background: #1f2937; color: white; padding: 30px; text-align: center; }\n    .social-links { margin: 20px 0; }\n    .social-links a { color: #06B6D4; margin: 0 10px; text-decoration: none; }\n    .unsubscribe { font-size: 12px; color: #9ca3af; margin-top: 20px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"logo\">⚡ ZehraTech</div>\n      <div class=\"tagline\">Building Tomorrow's Technology Today</div>\n    </div>\n    \n    <div class=\"content\">\n      <div class=\"greeting\">Hi {{ $json.name || 'Tech Enthusiast' }}! 👋</div>\n      \n      <p>We're excited to announce our latest lineup of cutting-edge workshops and courses designed to supercharge your tech skills!</p>\n      \n      <div class=\"workshop-card\">\n        <div class=\"workshop-title\">🤖 AI & Machine Learning Workshop</div>\n        <div class=\"workshop-desc\">\n          Dive into the world of Artificial Intelligence! Learn Python, neural networks, and build your own AI projects.\n        </div>\n      </div>\n      \n      <div class=\"workshop-card\">\n        <div class=\"workshop-title\">🌐 Full-Stack Web Development</div>\n        <div class=\"workshop-desc\">\n          Master modern web technologies - React, Next.js, Node.js, and MongoDB. Build real-world applications from scratch.\n        </div>\n      </div>\n      \n      <div class=\"workshop-card\">\n        <div class=\"workshop-title\">🔒 Cybersecurity Essentials</div>\n        <div class=\"workshop-desc\">\n          Learn ethical hacking, network security, and protect systems from cyber threats. Get hands-on with real security tools.\n        </div>\n      </div>\n      \n      <div class=\"workshop-card\">\n        <div class=\"workshop-title\">⚙️ Automation with N8N & Python</div>\n        <div class=\"workshop-desc\">\n          Automate repetitive tasks, build workflows, and increase productivity using cutting-edge automation tools.\n        </div>\n      </div>\n      \n      <div style=\"text-align: center;\">\n        <a href=\"https://zehratech.in/register\" class=\"cta-button\">🎯 Register Now - Limited Seats!</a>\n      </div>\n      \n      <div class=\"benefits\">\n        <h3>🌟 Why Choose ZehraTech?</h3>\n        <ul>\n          <li>✅ <strong>Hands-on Projects:</strong> Learn by building real applications</li>\n          <li>✅ <strong>Expert Instructors:</strong> Industry professionals with years of experience</li>\n          <li>✅ <strong>Certificate:</strong> Get recognized certification upon completion</li>\n          <li>✅ <strong>Career Support:</strong> Resume building and interview preparation</li>\n          <li>✅ <strong>Lifetime Access:</strong> Course materials and community support</li>\n        </ul>\n      </div>\n      \n      <p style=\"text-align: center; color: #666; margin: 30px 0;\">\n        <strong>Early Bird Discount: Use code EARLY2025 for 20% off!</strong><br>\n        <span style=\"font-size: 14px;\">Valid for registrations within 7 days</span>\n      </p>\n      \n      <p>Have questions? Call us at <a href=\"tel:+918960457971\" style=\"color: #0EA5E9;\">+91 8960457971</a> or reply to this email.</p>\n      \n      <p style=\"margin-top: 40px;\">\n        Best regards,<br>\n        <strong>Team ZehraTech</strong>\n      </p>\n    </div>\n    \n    <div class=\"footer\">\n      <div class=\"social-links\">\n        <a href=\"#\">Facebook</a> |\n        <a href=\"#\">Twitter</a> |\n        <a href=\"#\">LinkedIn</a> |\n        <a href=\"#\">Instagram</a>\n      </div>\n      <p>ZehraTech - Empowering Future Innovators</p>\n      <p style=\"font-size: 12px;\">AI Automation | Web Development | Custom Software | Cybersecurity</p>\n      <div class=\"unsubscribe\">\n        <a href=\"https://zehratech.in/unsubscribe?email={{ $json.email }}\" style=\"color: #9ca3af;\">Unsubscribe</a> |\n        <a href=\"https://zehratech.in/privacy-policy\" style=\"color: #9ca3af;\">Privacy Policy</a>\n      </div>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "id": "send-campaign-1",
+      "name": "Send Marketing Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      },
+      "id": "wait-1",
+      "name": "Wait Between Emails",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"sent\": $json.count } }}"
+      },
+      "id": "respond-campaign-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Trigger Campaign": {
+      "main": [
+        [
+          {
+            "node": "Get All Students",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Students": {
+      "main": [
+        [
+          {
+            "node": "Split Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Batches": {
+      "main": [
+        [
+          {
+            "node": "Send Marketing Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Marketing Email": {
+      "main": [
+        [
+          {
+            "node": "Wait Between Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Between Emails": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["marketing", "email"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}
