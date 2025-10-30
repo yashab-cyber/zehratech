@@ -1,0 +1,150 @@
+{
+  "name": "Analytics Reporting (MongoDB Direct)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every Monday 9 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "find",
+        "collection": "students",
+        "options": {
+          "limit": 10000,
+          "sort": {
+            "createdAt": -1
+          }
+        }
+      },
+      "id": "get-registrations",
+      "name": "Get Registrations from DB",
+      "type": "n8n-nodes-base.mongodb",
+      "typeVersion": 1,
+      "position": [450, 250],
+      "credentials": {
+        "mongodb": {
+          "id": "YOUR_MONGODB_CREDENTIALS_ID",
+          "name": "MongoDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "find",
+        "collection": "contacts",
+        "options": {
+          "limit": 10000,
+          "sort": {
+            "createdAt": -1
+          }
+        }
+      },
+      "id": "get-contacts",
+      "name": "Get Contacts from DB",
+      "type": "n8n-nodes-base.mongodb",
+      "typeVersion": 1,
+      "position": [450, 350],
+      "credentials": {
+        "mongodb": {
+          "id": "YOUR_MONGODB_CREDENTIALS_ID",
+          "name": "MongoDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all registrations and contacts\nconst registrations = $('Get Registrations from DB').all();\nconst contacts = $('Get Contacts from DB').all();\n\n// Calculate date range (last 7 days)\nconst now = new Date();\nconst oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\n\n// Filter for last week\nconst weeklyRegistrations = registrations.filter(item => {\n  const createdAt = new Date(item.json.createdAt || item.json._id.toString().substring(0, 8), 16) * 1000);\n  return createdAt >= oneWeekAgo;\n});\n\nconst weeklyContacts = contacts.filter(item => {\n  const createdAt = new Date(item.json.createdAt || item.json._id.toString().substring(0, 8), 16) * 1000);\n  return createdAt >= oneWeekAgo;\n});\n\n// Calculate metrics\nconst totalRegistrations = weeklyRegistrations.length;\nconst totalContacts = weeklyContacts.length;\nconst totalAllTimeReg = registrations.length;\nconst totalAllTimeContacts = contacts.length;\n\n// Workshop/Interest analysis\nconst workshopCounts = {};\nweeklyRegistrations.forEach(item => {\n  const reg = item.json;\n  const workshop = reg.workshopInterest || reg.eventTitle || 'Not specified';\n  workshopCounts[workshop] = (workshopCounts[workshop] || 0) + 1;\n});\n\nconst topWorkshops = Object.entries(workshopCounts)\n  .sort((a, b) => b[1] - a[1])\n  .slice(0, 5);\n\n// College distribution\nconst collegeCounts = {};\nweeklyRegistrations.forEach(item => {\n  const reg = item.json;\n  const college = reg.college || reg.collegeName || 'Not specified';\n  collegeCounts[college] = (collegeCounts[college] || 0) + 1;\n});\n\nconst topColleges = Object.entries(collegeCounts)\n  .sort((a, b) => b[1] - a[1])\n  .slice(0, 5);\n\n// Class/Year distribution\nconst classCounts = {};\nweeklyRegistrations.forEach(item => {\n  const reg = item.json;\n  const cls = reg.class || reg.year || 'Not specified';\n  classCounts[cls] = (classCounts[cls] || 0) + 1;\n});\n\n// Calculate growth rate (compare to previous week)\nconst twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);\nconst previousWeekRegistrations = registrations.filter(item => {\n  const createdAt = new Date(item.json.createdAt || item.json._id.toString().substring(0, 8), 16) * 1000);\n  return createdAt >= twoWeeksAgo && createdAt < oneWeekAgo;\n}).length;\n\nconst growthRate = previousWeekRegistrations > 0 \n  ? ((totalRegistrations - previousWeekRegistrations) / previousWeekRegistrations * 100).toFixed(1)\n  : '0';\n\n// Format dates\nconst formatDate = (date) => date.toLocaleDateString('en-US', { \n  weekday: 'short', \n  year: 'numeric', \n  month: 'short', \n  day: 'numeric' \n});\n\n// Generate beautiful HTML report\nconst reportHTML = `\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }\n    .container { max-width: 900px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }\n    .header h1 { margin: 0; font-size: 32px; font-weight: 600; }\n    .header p { margin: 10px 0 0; opacity: 0.9; font-size: 16px; }\n    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 30px; background: #f8f9fa; }\n    .metric-card { background: white; padding: 25px; border-radius: 10px; text-align: center; border: 1px solid #e1e8ed; transition: transform 0.2s; }\n    .metric-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }\n    .metric-icon { font-size: 40px; margin-bottom: 10px; }\n    .metric-value { font-size: 36px; font-weight: bold; color: #667eea; margin: 10px 0; }\n    .metric-label { color: #6c757d; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }\n    .metric-growth { font-size: 14px; margin-top: 8px; font-weight: 600; }\n    .metric-growth.positive { color: #10b981; }\n    .metric-growth.negative { color: #ef4444; }\n    .content { padding: 30px; }\n    .section { margin: 30px 0; }\n    .section-title { color: #2d3748; font-size: 22px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }\n    .section-title::before { content: ''; width: 4px; height: 24px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 2px; }\n    .list-item { background: #f8f9fa; padding: 18px 20px; margin: 12px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #667eea; }\n    .list-item-name { font-weight: 500; color: #2d3748; }\n    .list-item-value { background: #667eea; color: white; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 14px; }\n    .insights { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 25px; border-radius: 10px; border-left: 4px solid #f59e0b; }\n    .insights ul { margin: 10px 0; padding-left: 25px; }\n    .insights li { margin: 8px 0; color: #92400e; line-height: 1.6; }\n    .footer { background: #2d3748; color: white; padding: 25px; text-align: center; }\n    .footer-link { color: #667eea; text-decoration: none; font-weight: 500; }\n    table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n    th, td { padding: 14px; text-align: left; }\n    th { background: #f8f9fa; color: #667eea; font-weight: 600; border-bottom: 2px solid #667eea; }\n    tr { border-bottom: 1px solid #e1e8ed; }\n    tr:hover { background: #f8f9fa; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>📊 Weekly Analytics Report</h1>\n      <p>${formatDate(oneWeekAgo)} to ${formatDate(now)}</p>\n    </div>\n    \n    <div class=\"metrics-grid\">\n      <div class=\"metric-card\">\n        <div class=\"metric-icon\">👥</div>\n        <div class=\"metric-value\">${totalRegistrations}</div>\n        <div class=\"metric-label\">New Registrations</div>\n        <div class=\"metric-growth ${growthRate >= 0 ? 'positive' : 'negative'}\">\n          ${growthRate >= 0 ? '↑' : '↓'} ${Math.abs(growthRate)}% vs last week\n        </div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-icon\">📧</div>\n        <div class=\"metric-value\">${totalContacts}</div>\n        <div class=\"metric-label\">Contact Inquiries</div>\n        <div class=\"metric-growth\">New leads this week</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-icon\">📈</div>\n        <div class=\"metric-value\">${totalRegistrations + totalContacts}</div>\n        <div class=\"metric-label\">Total Engagement</div>\n        <div class=\"metric-growth\">Combined activity</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-icon\">🎯</div>\n        <div class=\"metric-value\">${totalAllTimeReg}</div>\n        <div class=\"metric-label\">All-Time Students</div>\n        <div class=\"metric-growth\">Total registered</div>\n      </div>\n    </div>\n    \n    <div class=\"content\">\n      <div class=\"section\">\n        <div class=\"section-title\">🎯 Top Workshop Interests</div>\n        ${topWorkshops.length > 0 ? topWorkshops.map(([workshop, count], index) => `\n        <div class=\"list-item\">\n          <span class=\"list-item-name\">${index + 1}. ${workshop}</span>\n          <span class=\"list-item-value\">${count} students</span>\n        </div>\n        `).join('') : '<p>No workshop data available</p>'}\n      </div>\n      \n      <div class=\"section\">\n        <div class=\"section-title\">🏛️ Top 5 Colleges</div>\n        ${topColleges.length > 0 ? topColleges.map(([college, count], index) => `\n        <div class=\"list-item\">\n          <span class=\"list-item-name\">${index + 1}. ${college}</span>\n          <span class=\"list-item-value\">${count} students</span>\n        </div>\n        `).join('') : '<p>No college data available</p>'}\n      </div>\n      \n      <div class=\"section\">\n        <div class=\"section-title\">📚 Student Distribution by Class</div>\n        <table>\n          <thead>\n            <tr>\n              <th>Class/Year</th>\n              <th>Students</th>\n              <th>Percentage</th>\n            </tr>\n          </thead>\n          <tbody>\n            ${Object.entries(classCounts).map(([cls, count]) => `\n            <tr>\n              <td>${cls}</td>\n              <td>${count}</td>\n              <td>${totalRegistrations > 0 ? ((count / totalRegistrations) * 100).toFixed(1) : 0}%</td>\n            </tr>\n            `).join('')}\n          </tbody>\n        </table>\n      </div>\n      \n      <div class=\"insights\">\n        <div class=\"section-title\">💡 Key Insights & Recommendations</div>\n        <ul>\n          ${totalRegistrations > 50 ? '<li>🎉 <strong>Excellent performance!</strong> Over 50 new registrations this week - momentum is building!</li>' : ''}\n          ${totalRegistrations < 10 ? '<li>⚠️ <strong>Low registration week.</strong> Consider ramping up marketing efforts or launching promotional campaigns.</li>' : ''}\n          ${totalContacts > 20 ? '<li>📞 <strong>High inquiry volume!</strong> ' + totalContacts + ' contact form submissions - ensure timely follow-up within 24 hours.</li>' : ''}\n          ${topWorkshops.length > 0 ? `<li>🏆 <strong>Most popular workshop:</strong> ${topWorkshops[0][0]} (${topWorkshops[0][1]} interested students)</li>` : ''}\n          ${topColleges.length > 0 ? `<li>🎓 <strong>Top performing college:</strong> ${topColleges[0][0]} with ${topColleges[0][1]} registrations</li>` : ''}\n          ${Math.abs(growthRate) > 20 ? `<li>📊 <strong>${growthRate > 0 ? 'Rapid growth' : 'Significant decline'}:</strong> ${Math.abs(growthRate)}% change compared to previous week - ${growthRate > 0 ? 'capitalize on this momentum' : 'investigate and address issues'}</li>` : ''}\n          <li>✉️ <strong>Follow-up actions:</strong> Send confirmation emails to all ${totalRegistrations} new registrants and follow up with ${totalContacts} inquiries</li>\n          <li>🎯 <strong>Conversion rate:</strong> Monitor contact-to-registration conversion (target: 40%+)</li>\n        </ul>\n      </div>\n      \n      <div class=\"section\">\n        <div class=\"section-title\">🚀 Action Items for This Week</div>\n        <div class=\"list-item\">\n          <span class=\"list-item-name\">Send welcome emails to new registrants</span>\n          <span class=\"list-item-value\">${totalRegistrations} emails</span>\n        </div>\n        <div class=\"list-item\">\n          <span class=\"list-item-name\">Follow up with contact form inquiries</span>\n          <span class=\"list-item-value\">${totalContacts} leads</span>\n        </div>\n        <div class=\"list-item\">\n          <span class=\"list-item-name\">Prepare workshop materials</span>\n          <span class=\"list-item-value\">${Object.keys(workshopCounts).length} workshops</span>\n        </div>\n        <div class=\"list-item\">\n          <span class=\"list-item-name\">Engage with top colleges</span>\n          <span class=\"list-item-value\">${topColleges.length} colleges</span>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"footer\">\n      <p><strong>🚀 ZehraTech Analytics Dashboard</strong></p>\n      <p style=\"margin-top: 15px; font-size: 14px; opacity: 0.9;\">Generated automatically every Monday at 9:00 AM IST</p>\n      <p style=\"margin-top: 10px; font-size: 13px; opacity: 0.7;\">Visit <a href=\"https://zehratech.onrender.com/admin/dashboard\" class=\"footer-link\">Admin Dashboard</a> for more details</p>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    totalRegistrations,\n    totalContacts,\n    totalEngagement: totalRegistrations + totalContacts,\n    totalAllTimeReg,\n    totalAllTimeContacts,\n    growthRate: parseFloat(growthRate),\n    topWorkshops: topWorkshops.map(([name, count]) => ({ name, count })),\n    topColleges: topColleges.map(([name, count]) => ({ name, count })),\n    classCounts,\n    reportHTML,\n    periodStart: formatDate(oneWeekAgo),\n    periodEnd: formatDate(now),\n    generatedAt: now.toISOString()\n  }\n}];"
+      },
+      "id": "analyze-data",
+      "name": "Analyze Weekly Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "analytics@zehratech.in",
+        "toEmail": "admin@zehratech.in",
+        "subject": "📊 Weekly Analytics Report - {{ $json.periodStart }} to {{ $json.periodEnd }}",
+        "emailType": "html",
+        "html": "={{ $json.reportHTML }}"
+      },
+      "id": "send-email",
+      "name": "Send Email Report",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "credentials": {
+        "smtp": {
+          "id": "YOUR_SMTP_CREDENTIALS_ID",
+          "name": "Gmail SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every Monday 9 AM": {
+      "main": [
+        [
+          {
+            "node": "Get Registrations from DB",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Contacts from DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Registrations from DB": {
+      "main": [
+        [
+          {
+            "node": "Analyze Weekly Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Contacts from DB": {
+      "main": [
+        [
+          {
+            "node": "Analyze Weekly Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Weekly Data": {
+      "main": [
+        [
+          {
+            "node": "Send Email Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

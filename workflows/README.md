@@ -136,28 +136,47 @@ This folder contains N8N workflow files that can be imported into your N8N insta
 
 ---
 
-### 6. Weekly Analytics Report (`analytics-reporting.json`) 🆕
+### 6. Weekly Analytics Report (`analytics-reporting-mongodb.json`) 🆕 ⚡
 **Category:** Analytics  
-**Purpose:** Generate and send comprehensive weekly performance reports
+**Purpose:** Generate and send comprehensive weekly performance reports using direct MongoDB connection
 
 **Trigger:** Schedule (Every Monday 9 AM)
 
 **What it does:**
-- Collects data on registrations, contacts, and workshops
-- Analyzes performance metrics and trends
-- Calculates growth rates and conversion rates
-- Identifies top-performing workshops
-- Sends detailed HTML report to admin email
-- Archives reports in Google Sheets
+- Directly queries MongoDB for registrations and contacts data
+- Analyzes performance metrics for the past 7 days
+- Calculates week-over-week growth rates
+- Identifies top workshops and colleges
+- Sends beautiful HTML report with insights
+- No authentication required (uses database directly)
 
 **Metrics Included:**
-- Total registrations vs last week
-- New inquiries count
-- Active workshops
-- Student distribution by class
-- Top performing workshops
-- Conversion rates
-- Key insights and action items
+- New registrations this week vs last week (with growth %)
+- Contact form submissions count
+- Total engagement (registrations + contacts)
+- All-time total students
+- Top 5 workshop interests with student counts
+- Top 5 colleges by registration
+- Student distribution by class/year
+- Actionable insights and recommendations
+
+**Setup Instructions:**
+1. In N8N, go to **Credentials** → **Add Credential** → **MongoDB**
+2. Enter your MongoDB connection string (get it from your `.env` file - `MONGODB_URI`)
+   - Format: `mongodb+srv://username:password@cluster.mongodb.net/database`
+3. Test the connection and save
+4. In the workflow, replace `YOUR_MONGODB_CREDENTIALS_ID` in both "Get Registrations from DB" and "Get Contacts from DB" nodes
+5. Set up SMTP credentials (Gmail or your email provider)
+6. Update the admin email address in "Send Email Report" node
+7. Save and test manually before schedule activates
+
+**Why MongoDB Direct Access?**
+- ✅ No authentication errors (direct database access)
+- ✅ Faster queries (bypasses API layer)
+- ✅ More reliable for scheduled tasks
+- ✅ Access to all data without permission issues
+
+**Note:** This replaces the old `analytics-reporting.json` which had authentication issues with API endpoints.
 
 ---
 
