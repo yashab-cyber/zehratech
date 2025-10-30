@@ -34,7 +34,7 @@
     {
       "parameters": {
         "phoneNumber": "={{ $json.phone }}",
-        "message": "🎉 *Welcome to ZehraTech!*\n\nHi {{ $json.name }}! 👋\n\nThank you for registering for *{{ $json.workshop }}*!\n\n📅 *Workshop Details:*\n• Date: {{ $json.date }}\n• Time: {{ $json.time }}\n• Venue: {{ $json.venue }}\n\n✅ *What's Next:*\n1. Check your email for confirmation\n2. Join our WhatsApp group for updates\n3. Prepare your questions!\n\n💡 *Quick Links:*\n📱 Workshop Group: {{ $json.groupLink }}\n🌐 Our Website: https://zehratech.in\n📞 Support: +91 8960457971\n\nSee you soon! 🚀\n\n*Team ZehraTech*",
+        "message": "🎉 *Welcome to ZehraTech!*\n\nHi {{ $json.name }}! 👋\n\nThank you for registering for *{{ $json.workshop }}*!\n\n📅 *Workshop Details:*\n• Date: {{ $json.date }}\n• Time: {{ $json.time }}\n• Venue: {{ $json.venue }}\n\n✅ *What's Next:*\n1. Check your email for confirmation\n2. Join our WhatsApp group for updates\n3. Prepare your questions!\n\n💡 *Quick Links:*\n📱 Workshop Group: {{ $json.groupLink }}\n🌐 Our Website: https://zehratech.onrender.com\n📞 Support: +91 8960457971\n\nSee you soon! 🚀\n\n*Team ZehraTech*",
         "options": {}
       },
       "id": "send-registration-wa-1",
@@ -58,7 +58,7 @@
     {
       "parameters": {
         "phoneNumber": "={{ $json.phone }}",
-        "message": "🌟 *New Workshop Alert!*\n\nHi {{ $json.name }}! 👋\n\nWe have an exciting new workshop that might interest you:\n\n🎯 *{{ $json.workshop }}*\n📅 {{ $json.date }}\n⏰ {{ $json.time }}\n\n✨ *What You'll Learn:*\n{{ $json.highlights }}\n\n💰 *Early Bird Offer:*\n{{$json.discount }}% OFF for next 48 hours!\nUse code: *EARLY2025*\n\n🎁 *Benefits:*\n✅ Hands-on Projects\n✅ Expert Instructors\n✅ Certificate\n✅ Career Support\n\n👉 Register Now: https://zehratech.in/register\n\n*Limited seats available!* 🔥\n\n*Team ZehraTech*\n📞 +91 8960457971",
+        "message": "🌟 *New Workshop Alert!*\n\nHi {{ $json.name }}! 👋\n\nWe have an exciting new workshop that might interest you:\n\n🎯 *{{ $json.workshop }}*\n📅 {{ $json.date }}\n⏰ {{ $json.time }}\n\n✨ *What You'll Learn:*\n{{ $json.highlights }}\n\n💰 *Early Bird Offer:*\n{{$json.discount }}% OFF for next 48 hours!\nUse code: *EARLY2025*\n\n🎁 *Benefits:*\n✅ Hands-on Projects\n✅ Expert Instructors\n✅ Certificate\n✅ Career Support\n\n👉 Register Now: https://zehratech.onrender.com/register\n\n*Limited seats available!* 🔥\n\n*Team ZehraTech*\n📞 +91 8960457971",
         "options": {}
       },
       "id": "send-promotion-wa-1",

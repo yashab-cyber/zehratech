@@ -23,7 +23,7 @@
     },
     {
       "parameters": {
-        "url": "https://zehratech.in/api/admin/registrations",
+        "url": "https://zehratech.onrender.com/api/admin/registrations",
         "method": "GET"
       },
       "id": "get-registrations-1",
@@ -34,7 +34,7 @@
     },
     {
       "parameters": {
-        "url": "https://zehratech.in/api/admin/contacts",
+        "url": "https://zehratech.onrender.com/api/admin/contacts",
         "method": "GET"
       },
       "id": "get-contacts-1",
@@ -45,7 +45,7 @@
     },
     {
       "parameters": {
-        "url": "https://zehratech.in/api/events",
+        "url": "https://zehratech.onrender.com/api/events",
         "method": "GET"
       },
       "id": "get-events-2",

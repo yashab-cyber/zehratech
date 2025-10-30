@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "url": "https://zehratech.in/api/events",
+        "url": "https://zehratech.onrender.com/api/events",
         "method": "GET",
         "options": {}
       },
@@ -49,7 +49,7 @@
     },
     {
       "parameters": {
-        "text": "🚀 Exciting Workshop Alert! 🎓\n\nJoin us for: {{ $json.title }}\n📅 Date: {{ $json.date }}\n📍 Location: {{ $json.location }}\n\n✨ What you'll learn:\n{{ $json.description }}\n\n🎯 Limited seats available!\nRegister now: https://zehratech.in/register\n\n#ZehraTech #Workshop #TechEducation #SkillDevelopment #AI #Cybersecurity #Coding",
+        "text": "🚀 Exciting Workshop Alert! 🎓\n\nJoin us for: {{ $json.title }}\n📅 Date: {{ $json.date }}\n📍 Location: {{ $json.location }}\n\n✨ What you'll learn:\n{{ $json.description }}\n\n🎯 Limited seats available!\nRegister now: https://zehratech.onrender.com/register\n\n#ZehraTech #Workshop #TechEducation #SkillDevelopment #AI #Cybersecurity #Coding",
         "additionalFields": {}
       },
       "id": "create-post-1",
