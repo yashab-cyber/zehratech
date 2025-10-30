@@ -1,0 +1,203 @@
+{
+  "name": "Certificate Generation & Distribution",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "certificate-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-cert-1",
+      "name": "Webhook - Generate Certificate",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.canva.com/v1/designs",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "template_id",
+              "value": "YOUR_CERTIFICATE_TEMPLATE_ID"
+            },
+            {
+              "name": "student_name",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "course_name",
+              "value": "={{ $json.courseName }}"
+            },
+            {
+              "name": "completion_date",
+              "value": "={{ $json.completionDate }}"
+            },
+            {
+              "name": "certificate_id",
+              "value": "ZT-{{ $json.studentId }}-{{ $now.toFormat('yyyyMMdd') }}"
+            }
+          ]
+        }
+      },
+      "id": "generate-cert-1",
+      "name": "Generate Certificate PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "driveId": "YOUR_DRIVE_ID",
+        "folderId": "certificates/{{ $json.courseName }}",
+        "name": "={{ $json.name }}_certificate.pdf",
+        "options": {
+          "makePublic": true
+        }
+      },
+      "id": "upload-cert-1",
+      "name": "Upload to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [650, 250]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_CERTIFICATES_SHEET_ID",
+        "range": "Certificates!A:H",
+        "options": {}
+      },
+      "id": "track-cert-1",
+      "name": "Track Certificate",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [650, 350]
+    },
+    {
+      "parameters": {
+        "fromEmail": "certificates@zehratech.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "🎓 Your ZehraTech Certificate is Ready!",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }\n    .container { max-width: 650px; margin: 0 auto; background: white; }\n    .header { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 40px 30px; text-align: center; }\n    .trophy { font-size: 80px; margin: 20px 0; }\n    .content { padding: 35px 30px; }\n    .cert-preview { border: 3px solid #F59E0B; padding: 20px; margin: 25px 0; background: #FFFBEB; text-align: center; border-radius: 8px; }\n    .download-btn { display: inline-block; background: #F59E0B; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; margin: 20px 10px; font-weight: bold; font-size: 16px; }\n    .share-btn { display: inline-block; background: #0EA5E9; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; margin: 20px 10px; font-weight: bold; font-size: 16px; }\n    .stats-box { background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; }\n    .footer { background: #1f2937; color: white; padding: 30px; text-align: center; }\n    .social-share { margin: 20px 0; }\n    .social-icon { display: inline-block; margin: 0 10px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"trophy\">🏆</div>\n      <h1>Congratulations!</h1>\n      <p>You've Earned Your Certificate</p>\n    </div>\n    \n    <div class=\"content\">\n      <h2>Dear {{ $json.name }}, 🎉</h2>\n      \n      <p>Congratulations on successfully completing <strong>{{ $json.courseName }}</strong>!</p>\n      \n      <p>Your dedication and hard work have paid off. We're proud to present you with your official ZehraTech certificate.</p>\n      \n      <div class=\"cert-preview\">\n        <h3 style=\"color: #F59E0B; margin-top: 0;\">📜 Certificate Details</h3>\n        <p><strong>Course:</strong> {{ $json.courseName }}</p>\n        <p><strong>Student:</strong> {{ $json.name }}</p>\n        <p><strong>Completion Date:</strong> {{ $json.completionDate }}</p>\n        <p><strong>Certificate ID:</strong> ZT-{{ $json.studentId }}-{{ $now.toFormat('yyyyMMdd') }}</p>\n        <p><strong>Grade:</strong> {{ $json.grade || 'Pass' }}</p>\n      </div>\n      \n      <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"{{ $json.certificateUrl }}\" class=\"download-btn\">📥 Download Certificate</a>\n        <a href=\"https://zehratech.in/verify?cert=ZT-{{ $json.studentId }}-{{ $now.toFormat('yyyyMMdd') }}\" class=\"download-btn\" style=\"background: #8B5CF6;\">✓ Verify Certificate</a>\n      </div>\n      \n      <div class=\"stats-box\">\n        <h3 style=\"color: #10B981; margin-top: 0;\">📊 Your Achievements</h3>\n        <ul style=\"line-height: 2;\">\n          <li>✅ Completed {{ $json.totalHours || '40' }} hours of learning</li>\n          <li>✅ Finished {{ $json.projectsCompleted || '5' }} hands-on projects</li>\n          <li>✅ Attendance: {{ $json.attendance || '95' }}%</li>\n          <li>✅ Assessment Score: {{ $json.assessmentScore || '88' }}%</li>\n        </ul>\n      </div>\n      \n      <h3>🌟 Share Your Achievement!</h3>\n      <p>Let the world know about your accomplishment. Share your certificate on social media:</p>\n      \n      <div class=\"social-share\" style=\"text-align: center;\">\n        <a href=\"https://www.linkedin.com/sharing/share-offsite/?url={{ $json.certificateUrl }}\" class=\"social-icon\" style=\"text-decoration: none; font-size: 24px;\">💼 LinkedIn</a>\n        <a href=\"https://twitter.com/intent/tweet?text=I just completed {{ $json.courseName }} at @ZehraTech!&url={{ $json.certificateUrl }}\" class=\"social-icon\" style=\"text-decoration: none; font-size: 24px;\">🐦 Twitter</a>\n        <a href=\"https://www.facebook.com/sharer/sharer.php?u={{ $json.certificateUrl }}\" class=\"social-icon\" style=\"text-decoration: none; font-size: 24px;\">📘 Facebook</a>\n      </div>\n      \n      <div style=\"background: #e0f2fe; border-left: 4px solid #0EA5E9; padding: 20px; margin: 25px 0; border-radius: 6px;\">\n        <h3 style=\"margin-top: 0; color: #0EA5E9;\">🚀 What's Next?</h3>\n        <ul style=\"line-height: 2;\">\n          <li>Add this certificate to your LinkedIn profile</li>\n          <li>Include it in your resume</li>\n          <li>Explore advanced courses in your field</li>\n          <li>Apply for relevant job opportunities</li>\n          <li>Join our alumni network for ongoing support</li>\n          <li>Refer friends and get exclusive benefits</li>\n        </ul>\n      </div>\n      \n      <div style=\"background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n        <h3 style=\"margin-top: 0; color: #f59e0b;\">🎁 Special Alumni Benefits</h3>\n        <ul style=\"line-height: 1.8;\">\n          <li>30% discount on all future courses</li>\n          <li>Priority access to new workshops</li>\n          <li>Free career counseling sessions</li>\n          <li>Exclusive job referrals</li>\n          <li>Alumni networking events</li>\n        </ul>\n        <p><strong>Your Alumni Code:</strong> <code style=\"background: white; padding: 5px 10px; border-radius: 4px;\">ALUMNI{{ $json.studentId }}</code></p>\n      </div>\n      \n      <p><strong>📞 Need Help?</strong></p>\n      <p>\n        Email: certificates@zehratech.in<br>\n        Phone: +91 8960457971<br>\n        Support Hours: Mon-Sat, 9 AM - 6 PM\n      </p>\n      \n      <p style=\"margin-top: 40px;\">Once again, congratulations on this achievement! We wish you all the best in your future endeavors.</p>\n      \n      <p>Keep learning, keep growing! 🌟</p>\n      \n      <p>Best regards,<br>\n      <strong>Team ZehraTech</strong></p>\n    </div>\n    \n    <div class=\"footer\">\n      <h3>⚡ ZehraTech</h3>\n      <p>Building Tomorrow's Technology Today</p>\n      <p style=\"margin-top: 15px; font-size: 12px;\">\n        © 2025 ZehraTech. All rights reserved.<br>\n        Certificate verification: zehratech.in/verify\n      </p>\n    </div>\n  </div>\n</body>\n</html>",
+        "attachments": "={{ $json.certificateUrl }}"
+      },
+      "id": "send-cert-1",
+      "name": "Email Certificate",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "phoneNumber": "={{ $json.phone }}",
+        "message": "🎓 *Congratulations!*\n\nHi {{ $json.name }}! 🎉\n\nYour *{{ $json.courseName }}* certificate is ready!\n\n📜 *Certificate ID:* ZT-{{ $json.studentId }}-{{ $now.toFormat('yyyyMMdd') }}\n\n📥 *Download:* {{ $json.certificateUrl }}\n\n✓ *Verify:* {{ $json.verifyUrl }}\n\n🌟 *Share your achievement:*\nAdd to LinkedIn, Resume & Social Media\n\n🎁 *Alumni Benefits:*\n30% OFF on future courses\nUse code: ALUMNI{{ $json.studentId }}\n\n*Team ZehraTech*\n☎️ +91 8960457971",
+        "options": {}
+      },
+      "id": "send-whatsapp-cert-1",
+      "name": "WhatsApp Notification",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"certificateUrl\": $json.certificateUrl, \"certificateId\": 'ZT-' + $json.studentId + '-' + $now.toFormat('yyyyMMdd') } }}"
+      },
+      "id": "respond-cert-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Generate Certificate": {
+      "main": [
+        [
+          {
+            "node": "Generate Certificate PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Certificate PDF": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Track Certificate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Email Certificate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Track Certificate": {
+      "main": [
+        [
+          {
+            "node": "Email Certificate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Certificate": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["certificates", "completion", "achievements"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

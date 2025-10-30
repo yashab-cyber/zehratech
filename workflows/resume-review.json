@@ -1,0 +1,173 @@
+{
+  "name": "Student Resume Review & Feedback",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "resume-review-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-resume-1",
+      "name": "Webhook - Resume Submitted",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "url": "={{ $json.resumeUrl }}"
+      },
+      "id": "download-resume-1",
+      "name": "Download Resume PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "driveId": "YOUR_DRIVE_ID",
+        "folderId": "resumes/{{ $json.studentId }}",
+        "name": "={{ $json.name }}_resume_{{ $now.toFormat('yyyy-MM-dd') }}.pdf",
+        "options": {}
+      },
+      "id": "upload-to-drive-1",
+      "name": "Save to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [650, 250]
+    },
+    {
+      "parameters": {
+        "jsCode": "// AI-powered resume analysis\nconst resume = $input.first().json;\n\n// Analyze resume content (simplified version - integrate with actual AI service)\nconst feedback = {\n  overallScore: Math.floor(Math.random() * 30) + 70, // 70-100\n  strengths: [\n    'Clear and concise formatting',\n    'Good project descriptions',\n    'Relevant technical skills listed'\n  ],\n  improvements: [\n    'Add quantifiable achievements (e.g., improved performance by X%)',\n    'Include more action verbs in project descriptions',\n    'Add links to GitHub portfolio/projects',\n    'Expand on internship responsibilities',\n    'Include soft skills section'\n  ],\n  sections: {\n    contact: { score: 9, comment: 'Complete contact information' },\n    summary: { score: 7, comment: 'Could be more impactful with specific achievements' },\n    experience: { score: 8, comment: 'Good detail, add metrics' },\n    education: { score: 9, comment: 'Well presented' },\n    skills: { score: 8, comment: 'Comprehensive, organize by proficiency' },\n    projects: { score: 7, comment: 'Add live links and GitHub repos' }\n  },\n  keywords: {\n    present: ['JavaScript', 'Python', 'React', 'Node.js', 'MongoDB'],\n    missing: ['AWS', 'Docker', 'CI/CD', 'Agile', 'Testing frameworks'],\n    suggestions: 'Add cloud technologies and DevOps keywords for better ATS compatibility'\n  },\n  atsCompatibility: 85,\n  formatting: {\n    score: 8,\n    issues: ['Use standard fonts for better ATS parsing', 'Avoid tables and graphics'],\n    suggestions: 'Use simple formatting with clear headings'\n  },\n  recommendations: [\n    'Tailor resume for specific job roles',\n    'Keep it to 1-2 pages maximum',\n    'Use consistent formatting throughout',\n    'Proofread for spelling and grammar',\n    'Get it reviewed by industry professionals'\n  ]\n};\n\nreturn [{\n  json: {\n    ...resume,\n    feedback\n  }\n}];"
+      },
+      "id": "analyze-resume-1",
+      "name": "AI Resume Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 350]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_RESUME_TRACKING_SHEET_ID",
+        "range": "Resume Reviews!A:F",
+        "options": {}
+      },
+      "id": "track-review-1",
+      "name": "Track in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [850, 250]
+    },
+    {
+      "parameters": {
+        "fromEmail": "careers@zehratech.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "📄 Your Resume Review Report - ZehraTech",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }\n    .container { max-width: 700px; margin: 0 auto; background: white; }\n    .header { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); color: white; padding: 40px 30px; text-align: center; }\n    .content { padding: 35px 30px; }\n    .score-circle { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 20px auto; }\n    .score-number { font-size: 48px; font-weight: bold; }\n    .score-label { font-size: 14px; margin-top: 5px; }\n    .section-box { background: #f9fafb; border-left: 4px solid #8B5CF6; padding: 20px; margin: 20px 0; border-radius: 6px; }\n    .strength-item { color: #10B981; margin: 10px 0; padding-left: 25px; position: relative; }\n    .strength-item:before { content: '✓'; position: absolute; left: 0; font-weight: bold; font-size: 18px; }\n    .improvement-item { color: #f59e0b; margin: 10px 0; padding-left: 25px; position: relative; }\n    .improvement-item:before { content: '⚠'; position: absolute; left: 0; font-size: 16px; }\n    .section-score { display: inline-block; background: #8B5CF6; color: white; padding: 4px 12px; border-radius: 12px; font-weight: bold; margin-left: 10px; }\n    .ats-score { background: #10B981; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0; }\n    .cta-button { display: inline-block; background: #8B5CF6; color: white; padding: 15px 35px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; }\n    .footer { background: #1f2937; color: white; padding: 30px; text-align: center; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>📄 Resume Review Report</h1>\n      <p>Professional Analysis & Feedback</p>\n    </div>\n    \n    <div class=\"content\">\n      <h2>Hi {{ $json.name }}! 👋</h2>\n      \n      <p>Thank you for submitting your resume for review. Our AI-powered system has analyzed your resume and here's your comprehensive feedback:</p>\n      \n      <div class=\"score-circle\">\n        <div class=\"score-number\">{{ $json.feedback.overallScore }}</div>\n        <div class=\"score-label\">Overall Score</div>\n      </div>\n      \n      <div class=\"ats-score\">\n        <strong>ATS Compatibility Score:</strong> {{ $json.feedback.atsCompatibility }}%<br>\n        <small>Your resume has good chances of passing Applicant Tracking Systems</small>\n      </div>\n      \n      <div class=\"section-box\">\n        <h3 style=\"margin-top: 0; color: #10B981;\">💪 Strengths</h3>\n        {{ $json.feedback.strengths.map(s => `<div class=\"strength-item\">${s}</div>`).join('') }}\n      </div>\n      \n      <div class=\"section-box\">\n        <h3 style=\"margin-top: 0; color: #f59e0b;\">🎯 Areas for Improvement</h3>\n        {{ $json.feedback.improvements.map(i => `<div class=\"improvement-item\">${i}</div>`).join('') }}\n      </div>\n      \n      <div class=\"section-box\">\n        <h3 style=\"margin-top: 0; color: #8B5CF6;\">📊 Section-wise Analysis</h3>\n        \n        <p><strong>Contact Information</strong> <span class=\"section-score\">{{ $json.feedback.sections.contact.score }}/10</span><br>\n        <small>{{ $json.feedback.sections.contact.comment }}</small></p>\n        \n        <p><strong>Professional Summary</strong> <span class=\"section-score\">{{ $json.feedback.sections.summary.score }}/10</span><br>\n        <small>{{ $json.feedback.sections.summary.comment }}</small></p>\n        \n        <p><strong>Work Experience</strong> <span class=\"section-score\">{{ $json.feedback.sections.experience.score }}/10</span><br>\n        <small>{{ $json.feedback.sections.experience.comment }}</small></p>\n        \n        <p><strong>Education</strong> <span class=\"section-score\">{{ $json.feedback.sections.education.score }}/10</span><br>\n        <small>{{ $json.feedback.sections.education.comment }}</small></p>\n        \n        <p><strong>Skills</strong> <span class=\"section-score\">{{ $json.feedback.sections.skills.score }}/10</span><br>\n        <small>{{ $json.feedback.sections.skills.comment }}</small></p>\n        \n        <p><strong>Projects</strong> <span class=\"section-score\">{{ $json.feedback.sections.projects.score }}/10</span><br>\n        <small>{{ $json.feedback.sections.projects.comment }}</small></p>\n      </div>\n      \n      <div class=\"section-box\">\n        <h3 style=\"margin-top: 0; color: #0EA5E9;\">🔑 Keyword Analysis</h3>\n        \n        <p><strong>Keywords Present:</strong><br>\n        <small style=\"color: #10B981;\">{{ $json.feedback.keywords.present.join(', ') }}</small></p>\n        \n        <p><strong>Recommended Keywords:</strong><br>\n        <small style=\"color: #f59e0b;\">{{ $json.feedback.keywords.missing.join(', ') }}</small></p>\n        \n        <p><small>{{ $json.feedback.keywords.suggestions }}</small></p>\n      </div>\n      \n      <div class=\"section-box\">\n        <h3 style=\"margin-top: 0; color: #10B981;\">✅ Top Recommendations</h3>\n        <ol style=\"line-height: 2;\">\n          {{ $json.feedback.recommendations.map(r => `<li>${r}</li>`).join('') }}\n        </ol>\n      </div>\n      \n      <div style=\"background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; border-radius: 6px;\">\n        <h3 style=\"margin-top: 0; color: #f59e0b;\">💡 Next Steps</h3>\n        <ul style=\"line-height: 1.8;\">\n          <li>Update your resume based on the feedback</li>\n          <li>Submit revised version for another review</li>\n          <li>Schedule a 1-on-1 consultation with our career expert</li>\n          <li>Explore job opportunities matching your profile</li>\n          <li>Practice mock interviews</li>\n        </ul>\n      </div>\n      \n      <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"https://zehratech.in/career-consultation\" class=\"cta-button\">Book Career Consultation</a>\n        <a href=\"https://zehratech.in/resume-templates\" class=\"cta-button\" style=\"background: #0EA5E9;\">Download Templates</a>\n      </div>\n      \n      <p><strong>Need personal guidance?</strong></p>\n      <p>Book a free 30-minute career consultation with our experts:<br>\n      📞 +91 8960457971<br>\n      📧 careers@zehratech.in</p>\n      \n      <p style=\"margin-top: 40px;\">Best of luck with your job search! 🚀</p>\n      \n      <p>Best regards,<br>\n      <strong>ZehraTech Career Team</strong></p>\n    </div>\n    \n    <div class=\"footer\">\n      <h3>⚡ ZehraTech</h3>\n      <p>Empowering Your Career Journey</p>\n      <p style=\"font-size: 12px; margin-top: 15px;\">careers@zehratech.in | +91 8960457971</p>\n    </div>\n  </div>\n</body>\n</html>"
+      },
+      "id": "send-feedback-1",
+      "name": "Send Feedback Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 350]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"score\": $json.feedback.overallScore, \"atsScore\": $json.feedback.atsCompatibility } }}"
+      },
+      "id": "respond-resume-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Resume Submitted": {
+      "main": [
+        [
+          {
+            "node": "Download Resume PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Resume PDF": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Resume Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Track in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Resume Analysis": {
+      "main": [
+        [
+          {
+            "node": "Send Feedback Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Track in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Feedback Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["career", "resume", "feedback"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}

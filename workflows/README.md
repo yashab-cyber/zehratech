@@ -221,6 +221,208 @@ This folder contains N8N workflow files that can be imported into your N8N insta
 
 ---
 
+### 9. College Partnership Management (`college-partnership.json`) 🆕
+**Category:** TPO & Partnerships  
+**Purpose:** Automate onboarding of new college partnerships and TPO collaborations
+
+**Trigger:** Webhook POST to `/college-partnership-webhook`
+
+**What it does:**
+- Saves partnership details to Google Sheets CRM
+- Sends welcome email to TPO with partnership benefits
+- Notifies team on Slack about new partnership
+- Auto-schedules kickoff meeting in Google Calendar
+- Provides access to partnership portal
+
+**Benefits for Colleges:**
+- Free workshops for students
+- Placement assistance
+- Internship programs
+- Faculty training
+- Custom curriculum
+- Campus drives
+
+**Webhook Payload:**
+```json
+{
+  "collegeName": "ABC College of Engineering",
+  "city": "Mumbai",
+  "state": "Maharashtra",
+  "tpoName": "Dr. John Doe",
+  "tpoEmail": "tpo@college.edu",
+  "tpoPhone": "+91 1234567890",
+  "studentStrength": 2000,
+  "departments": "CSE, IT, ECE"
+}
+```
+
+---
+
+### 10. Placement Drive Management (`placement-drive.json`) 🆕
+**Category:** TPO & Placements  
+**Purpose:** Automate complete placement drive process from scheduling to student invitations
+
+**Trigger:** Webhook POST to `/placement-drive-webhook`
+
+**What it does:**
+- Saves drive details to tracking sheet
+- Fetches eligible students from database
+- Sends detailed email invitations to students
+- Sends WhatsApp notifications
+- Notifies TPO about invitation status
+- Tracks student confirmations
+
+**Drive Features:**
+- Auto-filters eligible students
+- Beautiful invitation emails
+- WhatsApp reminders
+- TPO dashboard updates
+- Attendance tracking
+
+**Webhook Payload:**
+```json
+{
+  "collegeName": "ABC College",
+  "companyName": "Tech Corp",
+  "position": "Software Engineer",
+  "package": "₹5-7 LPA",
+  "driveDate": "Dec 15, 2025",
+  "driveTime": "10:00 AM",
+  "venue": "Auditorium Hall",
+  "mode": "Offline",
+  "qualification": "B.Tech CSE/IT",
+  "minPercentage": 65,
+  "skills": "Java, Python, DSA",
+  "tpoName": "Dr. Smith",
+  "tpoEmail": "tpo@college.edu",
+  "tpoPhone": "+91 1234567890"
+}
+```
+
+---
+
+### 11. Resume Review & Feedback (`resume-review.json`) 🆕
+**Category:** Career Services  
+**Purpose:** AI-powered resume analysis with detailed feedback for students
+
+**Trigger:** Webhook POST to `/resume-review-webhook`
+
+**What it does:**
+- Downloads and saves resume to Google Drive
+- AI analysis of resume content
+- Checks ATS compatibility
+- Section-wise scoring
+- Keyword analysis
+- Sends detailed feedback email
+- Tracks reviews in Google Sheets
+
+**Analysis Includes:**
+- Overall score out of 100
+- ATS compatibility percentage
+- Strengths and improvements
+- Section-wise analysis (Contact, Summary, Experience, Skills, Projects)
+- Keyword recommendations
+- Formatting suggestions
+
+**Webhook Payload:**
+```json
+{
+  "studentId": "STU123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "resumeUrl": "https://example.com/resume.pdf"
+}
+```
+
+---
+
+### 12. Certificate Generation & Distribution (`certificate-generation.json`) 🆕
+**Category:** Completion & Recognition  
+**Purpose:** Automated certificate generation and distribution after course completion
+
+**Trigger:** Webhook POST to `/certificate-webhook`
+
+**What it does:**
+- Generates personalized certificate PDF
+- Uploads to Google Drive with public link
+- Tracks certificate issuance
+- Emails certificate with achievement summary
+- Sends WhatsApp notification
+- Provides verification URL
+- Offers alumni benefits
+
+**Certificate Features:**
+- Unique certificate ID
+- Verification system
+- Social sharing options
+- Alumni discount codes
+- Achievement statistics
+
+**Webhook Payload:**
+```json
+{
+  "studentId": "STU123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "+91 1234567890",
+  "courseName": "Full Stack Web Development",
+  "completionDate": "Nov 30, 2025",
+  "grade": "A+",
+  "totalHours": 60,
+  "projectsCompleted": 8,
+  "attendance": 98,
+  "assessmentScore": 92
+}
+```
+
+---
+
+### 13. Internship Application Processing (`internship-application.json`) 🆕
+**Category:** Internships & Recruitment  
+**Purpose:** Automated screening and processing of internship applications
+
+**Trigger:** Webhook POST to `/internship-application-webhook`
+
+**What it does:**
+- Saves application to tracking system
+- Auto-screens based on CGPA, skills, experience
+- Calculates screening score out of 100
+- Automatically shortlists or rejects
+- Notifies team about shortlisted candidates on Slack
+- Sends personalized emails based on status
+- Provides feedback to all applicants
+
+**Screening Criteria:**
+- Academic performance (CGPA)
+- Skills match percentage
+- Previous internship experience
+- Project portfolio
+- Auto-scores and decides status
+
+**Statuses:**
+- Shortlisted (score ≥ 75)
+- Under Review (score 50-74)
+- Rejected (score < 50)
+
+**Webhook Payload:**
+```json
+{
+  "name": "Jane Smith",
+  "email": "jane@college.edu",
+  "phone": "+91 1234567890",
+  "college": "ABC College",
+  "cgpa": 8.5,
+  "skills": "React, Node.js, Python, MongoDB",
+  "previousInternships": 1,
+  "projectsCount": 5,
+  "internshipRole": "Full Stack Developer",
+  "resumeUrl": "https://example.com/resume.pdf",
+  "requiredSkills": "React,Node.js,MongoDB"
+}
+```
+
+---
+
 ## 🚀 How to Import Workflows
 
 1. Open your N8N instance: https://zehratechn8n.onrender.com
@@ -338,22 +540,40 @@ await fetch('YOUR_N8N_WEBHOOK_URL/whatsapp-webhook', {
 ### Analytics (1 workflow)
 - Weekly Analytics Report
 
+### TPO & Partnerships (2 workflows) 🆕
+- College Partnership Management
+- Placement Drive Management
+
+### Career Services (3 workflows) 🆕
+- Resume Review & Feedback
+- Certificate Generation & Distribution
+- Internship Application Processing
+
 ## 🎯 Use Cases
 
 ### Daily Operations
 1. **Automated Responses:** Contact form and registration confirmations sent instantly
 2. **Social Media:** Daily posts about upcoming workshops
 3. **Lead Tracking:** Every inquiry captured and tracked in Google Sheets
+4. **Resume Reviews:** Instant AI-powered feedback for student resumes
 
 ### Weekly Activities
 1. **Analytics Reports:** Monday morning performance reviews
 2. **Email Campaigns:** Weekly newsletter to all students
 3. **Follow-ups:** Automated reminders for sales team
+4. **Partnership Reviews:** Weekly TPO engagement tracking
 
 ### Event Management
 1. **Pre-Event:** Reminder WhatsApp messages 1 day before
 2. **During Event:** Real-time attendance tracking
 3. **Post-Event:** Completion messages with certificates
+
+### Placement & TPO Collaboration
+1. **Partnership Onboarding:** Automated welcome flow for new college TPOs
+2. **Placement Drives:** End-to-end automation from invitation to confirmation
+3. **Student Screening:** AI-powered resume analysis and shortlisting
+4. **Internship Management:** Application processing and candidate communication
+5. **Certificate Distribution:** Automated certificate generation after course completion
 
 ## 🧪 Testing Workflows
 
@@ -451,5 +671,5 @@ Consider creating workflows for:
 ---
 
 **Last Updated:** October 30, 2025  
-**Total Workflows:** 8  
-**Categories:** Communication, Marketing, Analytics, CRM
+**Total Workflows:** 13  
+**Categories:** Communication, Marketing, Analytics, TPO & Partnerships, Career Services

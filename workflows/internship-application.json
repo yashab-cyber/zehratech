@@ -1,0 +1,204 @@
+{
+  "name": "Internship Application Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "internship-application-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-internship-1",
+      "name": "Webhook - Internship Application",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_INTERNSHIP_SHEET_ID",
+        "range": "Applications!A:N",
+        "options": {}
+      },
+      "id": "save-application-1",
+      "name": "Save Application",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [450, 250]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Auto-screening logic\nconst app = $input.first().json;\n\nlet score = 0;\nlet status = 'pending';\nconst feedback = [];\n\n// Check CGPA\nif (parseFloat(app.cgpa) >= 7.5) {\n  score += 30;\n  feedback.push('Strong academic performance');\n} else if (parseFloat(app.cgpa) >= 6.5) {\n  score += 20;\n} else {\n  feedback.push('CGPA below preferred threshold');\n}\n\n// Check skills match\nconst requiredSkills = app.requiredSkills?.split(',') || [];\nconst applicantSkills = app.skills?.split(',') || [];\nconst matchingSkills = requiredSkills.filter(skill => \n  applicantSkills.some(aSkill => aSkill.toLowerCase().includes(skill.toLowerCase()))\n);\n\nconst skillMatchPercent = (matchingSkills.length / requiredSkills.length) * 100;\nif (skillMatchPercent >= 70) {\n  score += 40;\n  feedback.push('Excellent skill match');\n} else if (skillMatchPercent >= 50) {\n  score += 25;\n  feedback.push('Good skill match');\n} else {\n  feedback.push('Limited skill match - may need training');\n}\n\n// Check experience\nif (app.previousInternships >= 1) {\n  score += 15;\n  feedback.push('Has prior internship experience');\n}\n\n// Check projects\nif (app.projectsCount >= 3) {\n  score += 15;\n  feedback.push('Strong project portfolio');\n} else if (app.projectsCount >= 1) {\n  score += 10;\n}\n\n// Determine status\nif (score >= 75) {\n  status = 'shortlisted';\n} else if (score >= 50) {\n  status = 'review';\n} else {\n  status = 'rejected';\n}\n\nreturn [{\n  json: {\n    ...app,\n    screeningScore: score,\n    screeningStatus: status,\n    screeningFeedback: feedback,\n    skillMatchPercent: skillMatchPercent.toFixed(0)\n  }\n}];"
+      },
+      "id": "auto-screen-1",
+      "name": "Auto-Screening Algorithm",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 350]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.screeningStatus }}",
+              "operation": "equals",
+              "value2": "shortlisted"
+            }
+          ]
+        }
+      },
+      "id": "check-status-1",
+      "name": "Check Screening Result",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "channel": "C12345678",
+        "text": "🌟 *New Shortlisted Candidate!*\n\n*Internship:* {{ $json.internshipRole }}\n*Name:* {{ $json.name }}\n*College:* {{ $json.college }}\n*CGPA:* {{ $json.cgpa }}\n*Skills Match:* {{ $json.skillMatchPercent }}%\n*Screening Score:* {{ $json.screeningScore }}/100\n\n*Resume:* {{ $json.resumeUrl }}\n\n_Schedule interview ASAP_",
+        "otherOptions": {}
+      },
+      "id": "notify-shortlisted-1",
+      "name": "Notify Team - Shortlisted",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [850, 250]
+    },
+    {
+      "parameters": {
+        "fromEmail": "internships@zehratech.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "🎉 Congratulations! Shortlisted for {{ $json.internshipRole }} Internship",
+        "emailType": "html",
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }\n    .container { max-width: 650px; margin: 0 auto; background: white; }\n    .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 40px 30px; text-align: center; }\n    .content { padding: 35px 30px; }\n    .badge { background: #10B981; color: white; padding: 12px 25px; border-radius: 25px; display: inline-block; margin: 20px 0; font-weight: bold; }\n    .score-box { background: #f0fdf4; border-left: 4px solid #10B981; padding: 20px; margin: 20px 0; border-radius: 6px; }\n    .cta-button { display: inline-block; background: #10B981; color: white; padding: 15px 35px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; }\n    .footer { background: #1f2937; color: white; padding: 30px; text-align: center; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>🎉 Congratulations!</h1>\n      <div class=\"badge\">You're Shortlisted!</div>\n    </div>\n    \n    <div class=\"content\">\n      <h2>Dear {{ $json.name }},</h2>\n      \n      <p>Great news! Your application for the <strong>{{ $json.internshipRole }}</strong> internship position at ZehraTech has been shortlisted!</p>\n      \n      <div class=\"score-box\">\n        <h3 style=\"margin-top: 0; color: #10B981;\">📊 Your Application Score</h3>\n        <p><strong>Overall Score:</strong> {{ $json.screeningScore }}/100</p>\n        <p><strong>Skills Match:</strong> {{ $json.skillMatchPercent }}%</p>\n        <p><strong>Status:</strong> Shortlisted for Interview</p>\n        \n        <p><strong>Strengths Identified:</strong></p>\n        <ul>\n          {{ $json.screeningFeedback.map(f => `<li>${f}</li>`).join('') }}\n        </ul>\n      </div>\n      \n      <h3>📅 Next Steps:</h3>\n      <ol style=\"line-height: 2;\">\n        <li>You'll receive an interview invitation within 48 hours</li>\n        <li>Prepare for technical and HR rounds</li>\n        <li>Review the job description thoroughly</li>\n        <li>Update your portfolio/GitHub if needed</li>\n      </ol>\n      \n      <div style=\"background: #e0f2fe; border-left: 4px solid #0EA5E9; padding: 20px; margin: 20px 0; border-radius: 6px;\">\n        <h3 style=\"margin-top: 0; color: #0EA5E9;\">💼 Internship Details</h3>\n        <p><strong>Role:</strong> {{ $json.internshipRole }}</p>\n        <p><strong>Duration:</strong> {{ $json.duration }}</p>\n        <p><strong>Stipend:</strong> {{ $json.stipend }}</p>\n        <p><strong>Mode:</strong> {{ $json.mode }}</p>\n        <p><strong>Start Date:</strong> {{ $json.startDate }}</p>\n      </div>\n      \n      <div style=\"text-align: center;\">\n        <a href=\"https://zehratech.in/internship/prepare\" class=\"cta-button\">Interview Preparation Guide</a>\n      </div>\n      \n      <p><strong>Questions?</strong> Reply to this email or contact:<br>\n      📧 internships@zehratech.in<br>\n      📞 +91 8960457971</p>\n      \n      <p style=\"margin-top: 30px;\">Best of luck! 🚀</p>\n      \n      <p>Best regards,<br>\n      <strong>ZehraTech Internship Team</strong></p>\n    </div>\n    \n    <div class=\"footer\">\n      <h3>⚡ ZehraTech</h3>\n      <p>Building Tomorrow's Technology Today</p>\n    </div>\n  </div>\n</body>\n</html>"
+      },
+      "id": "send-shortlist-email-1",
+      "name": "Send Shortlist Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 350]
+    },
+    {
+      "parameters": {
+        "fromEmail": "internships@zehratech.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Update on Your {{ $json.internshipRole }} Internship Application",
+        "emailType": "html",
+        "text": "Dear {{ $json.name }},\n\nThank you for applying for the {{ $json.internshipRole }} internship at ZehraTech.\n\nWe have carefully reviewed your application. While your profile shows promise, we are currently moving forward with candidates whose skills and experience more closely match our immediate requirements.\n\nScreening Feedback:\n{{ $json.screeningFeedback.join('\\n') }}\n\nWe encourage you to:\n1. Continue building your skills in {{ $json.requiredSkills }}\n2. Work on more projects to strengthen your portfolio\n3. Apply for future opportunities at ZehraTech\n\nWe will keep your application on file and may reach out for future openings.\n\nBest regards,\nZehraTech Internship Team"
+      },
+      "id": "send-rejection-email-1",
+      "name": "Send Regret Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 450]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"status\": $json.screeningStatus, \"score\": $json.screeningScore } }}"
+      },
+      "id": "respond-internship-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Internship Application": {
+      "main": [
+        [
+          {
+            "node": "Save Application",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Auto-Screening Algorithm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Screening Algorithm": {
+      "main": [
+        [
+          {
+            "node": "Check Screening Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Screening Result": {
+      "main": [
+        [
+          {
+            "node": "Notify Team - Shortlisted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Shortlist Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Regret Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Team - Shortlisted": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Shortlist Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Regret Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["internships", "recruitment", "screening"],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-30T00:00:00.000Z",
+  "versionId": "1"
+}
